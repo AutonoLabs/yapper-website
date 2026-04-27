@@ -1,0 +1,2375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yapper — A friend who calls, every day. (v2 · senior-care tuned)</title>
+<link rel="icon" href="assets/yapper-logo.png" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html, body { scroll-behavior: smooth; }
+  body { margin: 0; overflow-x: hidden; background: var(--bg); color: var(--fg); }
+  * { box-sizing: border-box; }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--primary-200); color: var(--primary-900); }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+  @media (min-width: 960px) { .wrap { padding: 0 48px; } }
+
+  /* =========================================================
+     TYPE SYSTEM (deck-aligned)
+     - Public Sans 800, -0.035em letter-spacing for display
+     - Italic inline <em> as "payoff" word, wrapped in gradient
+     - Inter, 11-13px, tracked uppercase for eyebrows
+     ========================================================= */
+  .display {
+    font-family: var(--font-sans); font-weight: 800;
+    letter-spacing: -0.035em; line-height: 1.02;
+    color: var(--neutral-900); text-wrap: balance;
+  }
+  /* Per UUPM #57: solid accent color, not multi-stop gradient, reads more editorial */
+  .display em {
+    font-style: italic; font-weight: 800;
+    color: var(--primary-700);
+    padding-right: .12em; margin-right: -.06em;
+  }
+  .display em.mint {
+    color: var(--tertiary-700);
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-label); font-size: 13px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--primary-700);
+  }
+  .eyebrow::before {
+    content: ""; width: 22px; height: 1px; background: currentColor; opacity: .5;
+  }
+  .eyebrow.mint { color: var(--tertiary-600); }
+  .eyebrow.white { color: rgba(255,255,255,.7); }
+  /* Body base bumped to 17px for 65+ readability (UUPM Rule #57) */
+  html { font-size: 17px; }
+  body { color: var(--neutral-800); }
+  .lede {
+    font-size: clamp(19px, 1.35vw, 22px); line-height: 1.55;
+    color: var(--neutral-700); max-width: 580px;
+  }
+
+  /* =========================================================
+     NAV
+     ========================================================= */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+    height: 72px; display: flex; align-items: center;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+  .nav.scrolled {
+    background: rgba(245,245,247,.85);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border-bottom-color: var(--border);
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-sans); font-weight: 800; font-size: 20px;
+    letter-spacing: -0.03em; color: var(--neutral-900);
+  }
+  .brand .mark {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+  }
+  .brand .mark svg { width: 32px; height: 32px; overflow: visible; }
+  .brand .mark .petal { fill: var(--primary); }
+  .brand .mark .petal-mint { fill: var(--tertiary-300); transform-box: view-box; transform-origin: 24px 24px; animation: brandSpin 8s steps(8, end) infinite; }
+  @keyframes brandSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .brand .mark .petal-mint { animation: none; }
+  }
+  .nav-links { display: none; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-label); font-size: 14px; font-weight: 500;
+    color: var(--neutral-700); transition: color var(--dur) var(--ease);
+  }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-cta { display: flex; align-items: center; gap: 16px; }
+  .nav-signin {
+    display: none; font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+  }
+  .nav-signin:hover { color: var(--primary); }
+  @media (min-width: 960px) { .nav-links, .nav-signin { display: flex; } }
+
+  /* =========================================================
+     BUTTONS
+     ========================================================= */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--font-sans); font-weight: 600; font-size: 16px;
+    border-radius: var(--radius-md); padding: 0 26px; height: 52px;
+    cursor: pointer; border: 1.5px solid transparent; white-space: nowrap;
+    letter-spacing: -0.005em;
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+                background var(--dur) var(--ease), color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+  }
+  .btn svg { width: 17px; height: 17px; transition: transform var(--dur) var(--ease); }
+  .btn:hover svg.arrow { transform: translateX(3px); }
+  .btn.primary { background: var(--primary); color: white; }
+  .btn.primary:hover { background: var(--primary-700); transform: translateY(-1px); }
+  .btn.mint { background: var(--tertiary-200); color: var(--tertiary-900); }
+  .btn.mint:hover { background: var(--tertiary-300); transform: translateY(-1px); }
+  .btn.outlined { background: transparent; color: var(--neutral-900); border-color: var(--neutral-300); }
+  .btn.outlined:hover { border-color: var(--neutral-900); background: var(--neutral-0); }
+  .btn.ghost { background: transparent; color: var(--neutral-900); }
+  .btn.ghost:hover { background: var(--neutral-200); }
+  .btn.xl { height: 64px; font-size: 18px; padding: 0 34px; border-radius: 14px; }
+  .btn.lg { height: 58px; font-size: 17px; padding: 0 28px; }
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  /* Softened hero — less saturated, warmer, no "AI gradient" feel (UUPM Rule #57) */
+  .hero {
+    position: relative; padding: 140px 0 90px;
+    background:
+      radial-gradient(1100px 560px at 88% -10%, rgba(123,97,173,.10), transparent 60%),
+      radial-gradient(800px 480px at -8% 40%, rgba(152,255,217,.12), transparent 62%),
+      linear-gradient(180deg, #FAFAFA 0%, #F6F3FB 55%, #F5F5F7 100%);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(123,97,173,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123,97,173,.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative; display: grid; grid-template-columns: 1fr;
+    gap: 56px; align-items: center;
+  }
+  @media (min-width: 1000px) { .hero-grid { grid-template-columns: 1.1fr .9fr; gap: 72px; } }
+
+  .hero h1.display {
+    font-size: clamp(48px, 6.2vw, 86px);
+    margin-top: 24px;
+  }
+  .hero .lede { margin-top: 24px; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .hero-meta {
+    display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap;
+    font-family: var(--font-label); font-size: 13px; color: var(--neutral-500);
+  }
+  .hero-meta .sep { width: 4px; height: 4px; border-radius: 999px; background: var(--neutral-300); }
+  .hero-meta strong { color: var(--neutral-800); font-weight: 600; }
+
+  /* Hero visual — photo card stack */
+  .hero-visual {
+    position: relative; aspect-ratio: 4 / 5; max-width: 540px; margin-left: auto; width: 100%;
+  }
+  .hv-photo {
+    position: absolute; inset: 0; border-radius: 28px; overflow: hidden;
+    border: 1px solid rgba(15,15,19,.06);
+    box-shadow: 0 60px 100px -50px rgba(30,15,70,.45), 0 12px 32px -14px rgba(30,15,70,.2);
+    background: #f0eef5;
+  }
+  .hv-photo img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); }
+  .hv-photo::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(200deg, rgba(123,97,173,.08) 0%, transparent 40%, rgba(15,15,19,.22) 100%);
+  }
+  /* Mint halo behind photo */
+  .hero-visual::before {
+    content: ""; position: absolute;
+    inset: -10% -6% -4% 10%;
+    background: radial-gradient(closest-side, rgba(152,255,217,.55), transparent 72%);
+    filter: blur(30px);
+    z-index: 0;
+  }
+
+  /* Floating "incoming call" bubble */
+  .hv-call {
+    position: absolute; left: -22px; bottom: 56px; z-index: 5;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px 14px 14px; border-radius: 18px;
+    background: rgba(255,255,255,.96); backdrop-filter: blur(20px);
+    border: 1px solid rgba(15,15,19,.06);
+    box-shadow: 0 24px 50px -22px rgba(30,15,70,.3);
+    animation: floaty 7s ease-in-out infinite;
+  }
+  .hv-call .av {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: var(--primary-900); color: var(--tertiary-200);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .hv-call .av svg { width: 20px; height: 20px; }
+  .hv-call .nm { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; color: var(--neutral-900); }
+  .hv-call .sb { font-family: var(--font-label); font-size: 12px; color: var(--neutral-500); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .pulse { width: 7px; height: 7px; border-radius: 999px; background: var(--tertiary-400); box-shadow: 0 0 0 0 rgba(20,181,131,.5); animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(20,181,131,.5); }
+    70% { box-shadow: 0 0 0 10px rgba(20,181,131,0); }
+    100% { box-shadow: 0 0 0 0 rgba(20,181,131,0); }
+  }
+
+  /* Floating quote bubble (deck-style speech) */
+  .hv-quote {
+    position: absolute; right: -12px; top: 40px; z-index: 5;
+    width: 252px; padding: 18px 20px; border-radius: 20px 20px 20px 4px;
+    background: var(--primary-700); color: white;
+    box-shadow: 0 24px 50px -22px rgba(83,63,138,.45);
+    animation: floaty2 8s ease-in-out infinite;
+  }
+  .hv-quote .l {
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--tertiary-300);
+  }
+  .hv-quote .q {
+    margin-top: 10px; font-size: 15px; line-height: 1.45;
+    color: rgba(255,255,255,.92); letter-spacing: -0.005em;
+  }
+  .hv-quote .q em {
+    font-style: italic; color: var(--tertiary-200);
+    display: inline-block; padding-right: .1em; margin-right: -.05em;
+  }
+
+  @keyframes floaty  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes floaty2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  /* =========================================================
+     LOGO ROW
+     ========================================================= */
+  .trust-row {
+    position: relative; margin-top: 90px; padding-top: 36px;
+    border-top: 1px dashed var(--border);
+    display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center;
+  }
+  @media (max-width: 780px) { .trust-row { grid-template-columns: 1fr; } }
+  .trust-row .t-label {
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--neutral-500);
+    max-width: 180px; line-height: 1.5;
+  }
+  .trust-marks {
+    display: flex; flex-wrap: wrap; gap: 36px 52px; align-items: center;
+  }
+  .tm {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-sans); font-weight: 700; font-size: 18px;
+    letter-spacing: -0.02em; color: var(--neutral-400);
+    transition: color var(--dur);
+  }
+  .tm:hover { color: var(--neutral-800); }
+  .tm .g {
+    width: 22px; height: 22px; border-radius: 7px; background: currentColor;
+    display: grid; place-items: center; color: var(--neutral-100);
+    font-size: 11px; font-weight: 700;
+  }
+  .tm .g span { color: var(--neutral-500); }
+
+  /* =========================================================
+     SECTION SCAFFOLD
+     ========================================================= */
+  .section { padding: 120px 0; position: relative; }
+  @media (max-width: 720px) { .section { padding: 84px 0; } }
+  .section-lav  { background: linear-gradient(180deg, var(--bg) 0%, var(--primary-50) 50%, var(--bg) 100%); }
+  .section-mint { background: linear-gradient(180deg, var(--bg) 0%, var(--tertiary-50) 42%, var(--bg) 100%); }
+  .section-ink  { background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); color: white; }
+
+  .section-head { max-width: 780px; margin: 0 auto 72px; text-align: center; }
+  .section-head .eyebrow { justify-content: center; }
+  .section-head h2 {
+    font-size: clamp(34px, 4.6vw, 62px); margin-top: 18px;
+  }
+  .section-head p {
+    font-size: 18px; color: var(--neutral-600); margin-top: 20px;
+    line-height: 1.55; max-width: 620px; margin-left: auto; margin-right: auto;
+  }
+  .section-ink .section-head h2 { color: white; }
+  .section-ink .section-head p { color: rgba(255,255,255,.7); }
+
+  /* =========================================================
+     STATS — deck-aligned big number slabs
+     ========================================================= */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  @media (max-width: 840px) { .stats { grid-template-columns: 1fr; } }
+  .stat {
+    position: relative; padding: 40px 32px 32px;
+    background: white; border: 1px solid var(--border); border-radius: 24px;
+    transition: transform var(--dur) var(--ease), border-color var(--dur), box-shadow var(--dur);
+    overflow: hidden;
+  }
+  .stat:hover { transform: translateY(-2px); border-color: var(--primary-200); box-shadow: var(--shadow-md); }
+  .stat .num {
+    font-family: var(--font-sans); font-weight: 800;
+    font-size: clamp(64px, 7.5vw, 96px); letter-spacing: -0.055em; line-height: .95;
+    color: var(--neutral-900);
+  }
+  .stat .num em {
+    font-style: italic; font-weight: 800;
+    background: linear-gradient(112deg, var(--primary-700), var(--primary-500));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .stat:nth-child(2) .num em {
+    background: linear-gradient(112deg, var(--tertiary-600), var(--tertiary-400));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat:nth-child(3) .num em {
+    background: linear-gradient(112deg, #4E3E71, #7B61AD);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat h4 {
+    margin-top: 22px; font-size: 18px; font-weight: 700; letter-spacing: -0.015em;
+    color: var(--neutral-900); line-height: 1.35;
+  }
+  .stat p { margin-top: 10px; font-size: 14px; color: var(--neutral-600); line-height: 1.5; }
+  .stat .src {
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+    font-family: var(--font-label); font-size: 11px; color: var(--neutral-400);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+
+  /* =========================================================
+     FEATURES — photo-led split rows (deck split layout)
+     ========================================================= */
+  .feat-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;
+    padding: 56px 0;
+  }
+  @media (max-width: 900px) { .feat-row { grid-template-columns: 1fr; gap: 40px; padding: 40px 0; } }
+  .feat-row.rev { direction: rtl; }
+  .feat-row.rev > * { direction: ltr; }
+  .feat-row h3 {
+    font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.03em;
+    font-size: clamp(28px, 3vw, 42px); line-height: 1.08; margin-top: 16px;
+    text-wrap: balance;
+  }
+  .feat-row h3 em {
+    font-style: italic;
+    background: linear-gradient(112deg, var(--primary-700), var(--primary-500));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .feat-row p { margin-top: 18px; font-size: 17px; line-height: 1.6; color: var(--neutral-600); max-width: 500px; }
+  .feat-row .checks {
+    list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 10px;
+  }
+  .feat-row .checks li {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 15px; color: var(--neutral-800);
+  }
+  .feat-row .checks li svg {
+    width: 18px; height: 18px; color: var(--tertiary-600); margin-top: 2px; flex-shrink: 0;
+  }
+
+  .feat-visual {
+    position: relative; aspect-ratio: 5/4; border-radius: 24px; overflow: hidden;
+    background: var(--primary-50);
+  }
+  .feat-visual img { width: 100%; height: 100%; object-fit: cover; }
+  .feat-visual.mint { background: var(--tertiary-50); }
+
+  /* Transcript visual */
+  .transcript {
+    position: absolute; inset: 0; padding: 28px;
+    display: flex; flex-direction: column; gap: 12px; justify-content: flex-end;
+    background: linear-gradient(180deg, var(--primary-50) 0%, white 100%);
+  }
+  .bubble {
+    max-width: 82%; padding: 12px 16px; border-radius: 18px;
+    font-size: 14px; line-height: 1.45; letter-spacing: -0.005em;
+  }
+  .bubble.them {
+    background: white; color: var(--neutral-900);
+    border: 1px solid var(--border); border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+  .bubble.yap {
+    background: var(--primary-700); color: white;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+  }
+  .bubble .who {
+    font-family: var(--font-label); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; margin-bottom: 4px; opacity: .55;
+  }
+
+  /* Summary email visual */
+  .email {
+    position: absolute; inset: 0; padding: 24px;
+    display: flex; flex-direction: column; background: white;
+  }
+  .email .eh {
+    display: flex; align-items: center; gap: 10px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .email .eh .d { width: 30px; height: 30px; border-radius: 9px; background: var(--primary-900); color: var(--tertiary-200); display: grid; place-items: center; }
+  .email .eh .d svg { width: 15px; height: 15px; }
+  .email .eh .et { font-weight: 700; font-size: 13px; letter-spacing: -0.01em; }
+  .email .eh .em { font-family: var(--font-label); font-size: 11px; color: var(--neutral-500); }
+  .email .ebody { padding-top: 18px; display: grid; gap: 12px; }
+  .email .eline { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.5; color: var(--neutral-800); }
+  .email .eline .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--tertiary-400); margin-top: 7px; flex-shrink: 0; }
+  .email .ekpi { display: flex; gap: 8px; margin-top: 6px; }
+  .email .ekpi .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 999px; background: var(--tertiary-50); color: var(--tertiary-700);
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+  }
+  .email .ekpi .chip.lav { background: var(--primary-50); color: var(--primary-700); }
+
+  /* Control panel visual (schedule) */
+  .schedule {
+    position: absolute; inset: 0; padding: 24px;
+    background: linear-gradient(155deg, var(--primary-700) 0%, var(--primary-800) 100%);
+    color: white;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .schedule .st {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-label); font-size: 12px; color: rgba(255,255,255,.55);
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .schedule .sgrid {
+    flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  }
+  .scell {
+    border-radius: 8px; background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: var(--font-label); font-size: 10px; font-weight: 600; color: rgba(255,255,255,.5);
+    padding: 8px 4px; gap: 4px; min-height: 40px;
+  }
+  .scell.on {
+    background: var(--tertiary-200); border-color: var(--tertiary-200); color: var(--tertiary-900);
+  }
+  .scell.on .t { color: var(--tertiary-900); }
+  .scell .t { font-size: 10px; color: rgba(255,255,255,.75); font-weight: 500; }
+  .schedule .srow {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 14px; border-top: 1px solid rgba(255,255,255,.08);
+    font-size: 13px;
+  }
+  .schedule .srow .l { font-family: var(--font-label); color: rgba(255,255,255,.6); }
+  .schedule .srow .v { font-weight: 600; color: var(--tertiary-200); display: flex; align-items: center; gap: 6px; }
+
+  /* =========================================================
+     HOW IT WORKS — numbered row (deck section opener style)
+     ========================================================= */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  @media (max-width: 840px) { .steps { grid-template-columns: 1fr; } }
+  .step {
+    position: relative; padding: 44px 32px 36px;
+    background: white; border: 1px solid var(--border); border-radius: 24px;
+    transition: transform var(--dur), border-color var(--dur), box-shadow var(--dur);
+  }
+  .step:hover { transform: translateY(-3px); border-color: var(--primary-200); box-shadow: var(--shadow-md); }
+  .step .n {
+    font-family: var(--font-sans); font-weight: 800; font-style: italic;
+    font-size: 72px; letter-spacing: -0.05em; line-height: .9;
+    background: linear-gradient(112deg, var(--primary-400), var(--primary-200));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .step h3 {
+    margin-top: 20px; font-family: var(--font-sans); font-weight: 800;
+    font-size: 22px; letter-spacing: -0.02em; color: var(--neutral-900);
+  }
+  .step p { margin-top: 10px; color: var(--neutral-600); font-size: 15px; line-height: 1.55; }
+  .step .ic {
+    position: absolute; top: 32px; right: 32px;
+    width: 42px; height: 42px; border-radius: 12px;
+    background: var(--primary-50); color: var(--primary-600);
+    display: grid; place-items: center;
+  }
+  .step .ic svg { width: 20px; height: 20px; stroke-width: 1.7; }
+  .step-line {
+    display: none; position: absolute; top: 44%; right: -28px; width: 28px; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--primary-300), var(--primary-300) 3px, transparent 3px, transparent 7px);
+  }
+  @media (min-width: 841px) { .step:not(:last-child) .step-line { display: block; } }
+
+  /* =========================================================
+     INTEGRATED DEMO — phone app + voice player
+     ========================================================= */
+  .demo-wrap {
+    position: relative;
+    background: linear-gradient(160deg, var(--primary-50) 0%, var(--bg) 55%, var(--tertiary-50) 100%);
+    border: 1px solid var(--border);
+    border-radius: 36px; padding: 56px;
+    overflow: hidden;
+  }
+  .demo-wrap::before {
+    content: ""; position: absolute; inset: -120px -80px auto auto; width: 380px; height: 380px;
+    background: radial-gradient(closest-side, rgba(123,97,173,.18), transparent 70%);
+    pointer-events: none;
+  }
+  .demo-wrap::after {
+    content: ""; position: absolute; inset: auto auto -120px -80px; width: 320px; height: 320px;
+    background: radial-gradient(closest-side, rgba(126,213,177,.22), transparent 70%);
+    pointer-events: none;
+  }
+  .demo-grid {
+    position: relative; display: grid; gap: 56px; align-items: center;
+    grid-template-columns: minmax(280px, 360px) 1fr;
+  }
+  @media (max-width: 900px) {
+    .demo-wrap { padding: 36px 24px; border-radius: 28px; }
+    .demo-grid { grid-template-columns: 1fr; gap: 40px; justify-items: center; }
+  }
+
+  /* Phone frame */
+  .demo-phone {
+    width: 320px; aspect-ratio: 9/19;
+    background: #1a1525;
+    border-radius: 44px; padding: 12px;
+    box-shadow:
+      0 30px 60px -20px rgba(56,44,83,.55),
+      0 0 0 1px rgba(255,255,255,.06) inset;
+    position: relative;
+  }
+  .demo-phone::after {
+    content: ""; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    width: 92px; height: 24px; background: #0a0612; border-radius: 999px;
+  }
+  .demo-screen {
+    width: 100%; height: 100%; border-radius: 34px; overflow: hidden;
+    background: linear-gradient(180deg, var(--primary-50) 0%, #fff 60%);
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .ds-status {
+    height: 44px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px;
+    font-family: var(--font-label); font-size: 12px; font-weight: 600;
+    color: var(--neutral-900);
+  }
+  .ds-status .right { display: flex; gap: 4px; align-items: center; }
+  .ds-status .right svg { width: 14px; height: 14px; }
+  .ds-header { padding: 18px 20px 14px; }
+  .ds-header .greet {
+    font-family: var(--font-label); font-size: 12px; font-weight: 600;
+    color: var(--primary-700); letter-spacing: .02em;
+  }
+  .ds-header .h1 {
+    margin-top: 4px; font-family: var(--font-sans); font-weight: 800; font-size: 22px;
+    letter-spacing: -0.02em; color: var(--neutral-900); line-height: 1.15;
+  }
+  .ds-card {
+    margin: 0 16px 14px; padding: 16px;
+    background: white; border: 1px solid var(--border); border-radius: 18px;
+    box-shadow: 0 6px 18px -10px rgba(78,62,113,.18);
+  }
+  .ds-card.next {
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+    color: white; border-color: transparent;
+  }
+  .ds-card .label {
+    font-family: var(--font-label); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; opacity: .8;
+  }
+  .ds-card.next .label { color: rgba(255,255,255,.85); }
+  .ds-card .row {
+    display: flex; align-items: center; justify-content: space-between; margin-top: 8px;
+  }
+  .ds-card .who {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ds-card .av {
+    width: 34px; height: 34px; border-radius: 999px;
+    background: linear-gradient(135deg, #FFD8DD, #F9A6B4);
+    display: grid; place-items: center;
+    font-family: var(--font-sans); font-weight: 700; font-size: 13px; color: #7A2E3B;
+  }
+  .ds-card.next .av { background: rgba(255,255,255,.18); color: white; }
+  .ds-card .who .nm { font-family: var(--font-sans); font-weight: 700; font-size: 14px; }
+  .ds-card .who .sb { font-family: var(--font-label); font-size: 11px; opacity: .7; margin-top: 2px; }
+  .ds-card .when {
+    font-family: var(--font-sans); font-weight: 800; font-size: 16px;
+  }
+  .ds-card .cta {
+    margin-top: 12px; display: flex; gap: 8px;
+  }
+  .ds-card .pill {
+    flex: 1; padding: 8px 10px; border-radius: 999px;
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    text-align: center;
+    background: rgba(255,255,255,.18); color: white;
+  }
+  .ds-card .pill.solid { background: white; color: var(--primary-700); }
+
+  .ds-section {
+    padding: 4px 22px 8px;
+    font-family: var(--font-label); font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--neutral-500);
+  }
+  .ds-recap {
+    margin: 0 16px 12px; padding: 14px;
+    background: white; border: 1px solid var(--border); border-radius: 16px;
+  }
+  .ds-recap .top {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-label); font-size: 11px; color: var(--neutral-500);
+  }
+  .ds-recap .mood {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px; border-radius: 999px;
+    background: var(--tertiary-50); color: var(--tertiary-700);
+    font-weight: 600;
+  }
+  .ds-recap .mood .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--tertiary-300); }
+  .ds-recap .quote {
+    margin-top: 8px; font-family: var(--font-sans); font-size: 13px; line-height: 1.4;
+    color: var(--neutral-900); font-weight: 500; letter-spacing: -0.005em;
+  }
+  .ds-recap .quote em { font-style: italic; color: var(--primary-700); }
+  .ds-recap .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .ds-recap .tag {
+    padding: 3px 9px; border-radius: 999px;
+    font-family: var(--font-label); font-size: 10px; font-weight: 600;
+    background: var(--primary-50); color: var(--primary-700);
+  }
+  .ds-tabs {
+    margin-top: auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    padding: 10px 8px 14px; background: white;
+  }
+  .ds-tab {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-family: var(--font-label); font-size: 9.5px; font-weight: 600;
+    color: var(--neutral-500);
+  }
+  .ds-tab svg { width: 18px; height: 18px; stroke-width: 2; }
+  .ds-tab.active { color: var(--primary-700); }
+
+  /* Voice demo player */
+  .demo-side h2 {
+    font-family: var(--font-sans); font-weight: 800; font-size: 44px;
+    letter-spacing: -0.035em; line-height: 1.05; color: var(--neutral-900);
+    text-wrap: balance;
+  }
+  .demo-side h2 em {
+    font-style: italic; color: var(--primary-700);
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .demo-side > p {
+    margin-top: 16px; font-size: 17px; line-height: 1.55; color: var(--neutral-700); max-width: 540px;
+  }
+
+  .demo-player {
+    margin-top: 28px;
+    background: white; border: 1px solid var(--border); border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 30px 60px -32px rgba(78,62,113,.35);
+    max-width: 540px;
+  }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; }
+  .dp-now {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .dp-now .av {
+    width: 56px; height: 56px; border-radius: 18px;
+    display: grid; place-items: center; flex-shrink: 0;
+    overflow: hidden;
+  }
+  .dp-now .av.rose    { background: linear-gradient(135deg, #FFD8DD, #F9A6B4); }
+  .dp-now .av.charlie { background: linear-gradient(135deg, #FFE3B8, #F5B97A); }
+  .dp-now .av.mae     { background: linear-gradient(135deg, #C8F2DF, #7ED5B1); }
+  .dp-now .av.lena    { background: linear-gradient(135deg, #E4D5FF, #B69CF0); }
+  .dp-now .av svg { width: 52px; height: 52px; }
+  .dp-now .meta .nm {
+    font-family: var(--font-sans); font-weight: 800; font-size: 18px;
+    letter-spacing: -0.01em; color: var(--neutral-900);
+  }
+  .dp-now .meta .sb {
+    margin-top: 2px;
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--primary-600);
+  }
+  .dp-time {
+    font-family: var(--font-label); font-size: 12px; color: var(--neutral-500);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dp-wave {
+    margin-top: 18px;
+    height: 56px; display: flex; align-items: center; gap: 3px;
+    padding: 0 4px;
+  }
+  .dp-wave span {
+    flex: 1; background: var(--primary-200); border-radius: 2px;
+    transition: background var(--dur), height var(--dur);
+  }
+  .dp-wave span.played { background: var(--primary); }
+  .demo-player.playing .dp-wave span.played:nth-child(odd)  { animation: dpBob 1.1s ease-in-out infinite; }
+  .demo-player.playing .dp-wave span.played:nth-child(even) { animation: dpBob 1.1s ease-in-out infinite reverse; }
+  @keyframes dpBob {
+    0%,100% { transform: scaleY(.85); }
+    50%     { transform: scaleY(1.15); }
+  }
+
+  .dp-controls {
+    margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 22px;
+  }
+  .dp-btn {
+    width: 40px; height: 40px; border-radius: 999px;
+    border: 1px solid var(--border); background: white;
+    display: grid; place-items: center; cursor: pointer;
+    transition: all var(--dur) var(--ease);
+    color: var(--neutral-700);
+  }
+  .dp-btn:hover { border-color: var(--primary-300); color: var(--primary-700); }
+  .dp-btn svg { width: 16px; height: 16px; }
+  .dp-btn.play {
+    width: 56px; height: 56px; background: var(--primary); color: white; border-color: transparent;
+    box-shadow: 0 12px 24px -8px rgba(123,97,173,.55);
+  }
+  .dp-btn.play:hover { background: var(--primary-700); transform: scale(1.04); color: white; }
+  .dp-btn.play svg { width: 20px; height: 20px; }
+
+  .dp-voices {
+    margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .dp-voices .lbl {
+    font-family: var(--font-label); font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--neutral-500);
+  }
+  .dp-voice {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 8px; border-radius: 999px;
+    background: var(--neutral-50); border: 1px solid var(--border);
+    font-family: var(--font-sans); font-weight: 600; font-size: 13px; color: var(--neutral-700);
+    cursor: pointer; transition: all var(--dur) var(--ease);
+  }
+  .dp-voice .swatch { width: 18px; height: 18px; border-radius: 6px; }
+  .dp-voice:hover { border-color: var(--primary-300); color: var(--primary-700); }
+  .dp-voice.active { background: var(--primary-50); border-color: var(--primary-300); color: var(--primary-700); }
+
+  .demo-quotes {
+    margin-top: 20px; display: flex; flex-direction: column; gap: 8px;
+    max-width: 540px;
+  }
+  .demo-quote {
+    padding: 12px 16px; border-radius: 14px;
+    background: rgba(255,255,255,.6);
+    border: 1px solid var(--border);
+    font-family: var(--font-sans); font-size: 14px; color: var(--neutral-700); line-height: 1.45;
+    opacity: .55; transition: all var(--dur) var(--ease);
+  }
+  .demo-quote.active {
+    opacity: 1; background: white;
+    border-color: var(--primary-200);
+    box-shadow: 0 6px 18px -10px rgba(78,62,113,.2);
+    color: var(--neutral-900);
+  }
+  .demo-quote .who {
+    font-family: var(--font-label); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--primary-600);
+    margin-right: 8px;
+  }
+
+  /* =========================================================
+     VOICES — deck persona bloom tiles
+     ========================================================= */
+  .personas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  @media (max-width: 900px) { .personas { grid-template-columns: repeat(2, 1fr); } }
+  .persona {
+    position: relative; padding: 28px 24px 24px;
+    background: white; border: 1px solid var(--border); border-radius: 24px;
+    text-align: left; cursor: pointer; overflow: hidden; font-family: var(--font-sans);
+    transition: transform var(--dur), box-shadow var(--dur), border-color var(--dur);
+  }
+  .persona:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -24px rgba(123,97,173,.28); border-color: var(--primary-300); }
+  .persona .bloom {
+    width: 72px; height: 72px; border-radius: 24px;
+    display: grid; place-items: center; position: relative; overflow: hidden;
+  }
+  .persona .bloom svg { width: 56px; height: 56px; }
+  .persona.rose    .bloom { background: linear-gradient(135deg, #FFD8DD, #F9A6B4); }
+  .persona.charlie .bloom { background: linear-gradient(135deg, #FFE3B8, #F5B97A); }
+  .persona.mae     .bloom { background: linear-gradient(135deg, #C8F2DF, #7ED5B1); }
+  .persona.lena    .bloom { background: linear-gradient(135deg, #E4D5FF, #B69CF0); }
+
+  /* =========================================================
+     PERSONA FACES — friendly animated SVG portraits
+     ========================================================= */
+  .face { transform-box: view-box; transform-origin: 50% 50%; }
+  .face .blink { transform-origin: center; animation: blink 5s ease-in-out infinite; }
+  .face .blink.b2 { animation-delay: .15s; }
+  .face .smile { transform-box: view-box; transform-origin: 50% 60%; animation: smilePulse 3.4s ease-in-out infinite; }
+  .face .head  { transform-box: view-box; transform-origin: 50% 50%; animation: headBob 4.6s ease-in-out infinite; }
+  .face.lena .head  { animation: headNod 1.8s ease-in-out infinite; }
+  .face.charlie .wink { transform-origin: center; animation: wink 3.6s ease-in-out infinite; }
+
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    94%, 96%      { transform: scaleY(0.05); }
+  }
+  @keyframes wink {
+    0%, 78%, 100% { transform: scaleY(1); }
+    82%, 88%      { transform: scaleY(0.05); }
+  }
+  @keyframes smilePulse {
+    0%, 100% { transform: scaleX(1) scaleY(1); }
+    50%      { transform: scaleX(1.06) scaleY(1.08); }
+  }
+  @keyframes headBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-0.6px) rotate(-1deg); }
+  }
+  @keyframes headNod {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-1px) rotate(2deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .face .blink, .face .smile, .face .head, .face .wink { animation: none; }
+  }
+
+  .persona h3 {
+    margin-top: 22px; font-weight: 800; font-size: 22px; letter-spacing: -0.02em;
+    color: var(--neutral-900);
+  }
+  .persona .style {
+    margin-top: 4px;
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--primary-600);
+  }
+  .persona p { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--neutral-600); }
+  .persona .play {
+    margin-top: 22px; display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 14px 8px 10px; border-radius: 999px;
+    background: var(--neutral-100); color: var(--neutral-900);
+    font-family: var(--font-label); font-size: 13px; font-weight: 600;
+    transition: background var(--dur), color var(--dur);
+  }
+  .persona .play .pb {
+    width: 22px; height: 22px; border-radius: 999px; background: var(--primary); color: white;
+    display: grid; place-items: center; transition: background var(--dur);
+  }
+  .persona .play .pb svg { width: 10px; height: 10px; fill: currentColor; stroke: currentColor; }
+  .persona:hover .play { background: var(--primary); color: white; }
+  .persona:hover .play .pb { background: white; color: var(--primary); }
+  .wave { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+  .wave span { width: 2px; background: currentColor; border-radius: 1px; opacity: .7; }
+  .persona:hover .wave span { animation: bounce 1s ease-in-out infinite; }
+  .persona:hover .wave span:nth-child(1){ animation-delay: 0s;}
+  .persona:hover .wave span:nth-child(2){ animation-delay: .1s;}
+  .persona:hover .wave span:nth-child(3){ animation-delay: .2s;}
+  .persona:hover .wave span:nth-child(4){ animation-delay: .3s;}
+  .persona:hover .wave span:nth-child(5){ animation-delay: .4s;}
+  @keyframes bounce { 0%,100%{ height: 4px;} 50%{ height: 14px;} }
+
+  /* =========================================================
+     PROMISE — deck's side-by-side compare
+     ========================================================= */
+  .promise {
+    background: white; border: 1px solid var(--border); border-radius: 32px;
+    padding: 56px; position: relative; overflow: hidden;
+  }
+  @media (max-width: 720px) { .promise { padding: 36px 28px; border-radius: 24px; } }
+  .promise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  @media (max-width: 820px) { .promise-grid { grid-template-columns: 1fr; gap: 28px; } }
+  .promise h4 {
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; margin-bottom: 18px;
+  }
+  .promise .cold h4 { color: var(--neutral-400); }
+  .promise .warm h4 { color: var(--tertiary-600); }
+  .promise ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .promise ul li {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 17px; line-height: 1.45; letter-spacing: -0.005em;
+  }
+  .promise .cold li { color: var(--neutral-500); }
+  .promise .warm li { color: var(--neutral-900); font-weight: 500; }
+  .promise li .xo {
+    width: 22px; height: 22px; border-radius: 999px; display: grid; place-items: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .promise .cold li .xo { background: var(--neutral-100); color: var(--neutral-400); }
+  .promise .warm li .xo { background: var(--tertiary-100); color: var(--tertiary-700); }
+  .promise li .xo svg { width: 12px; height: 12px; stroke-width: 3; }
+  .promise .divider {
+    position: absolute; left: 50%; top: 56px; bottom: 56px; width: 1px;
+    background: var(--border); transform: translateX(-.5px);
+  }
+  @media (max-width: 820px) { .promise .divider { display: none; } }
+
+  /* =========================================================
+     TESTIMONIALS
+     ========================================================= */
+  .tslabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 900px) { .tslabs { grid-template-columns: 1fr; } }
+  .tslab {
+    padding: 36px; background: white; border: 1px solid var(--border); border-radius: 24px;
+    display: flex; flex-direction: column; gap: 24px; position: relative;
+    transition: transform var(--dur), box-shadow var(--dur);
+  }
+  .tslab:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .tslab .qm {
+    font-family: var(--font-sans); font-style: italic; font-weight: 800;
+    font-size: 72px; line-height: .7; color: var(--primary-200); margin-bottom: -20px;
+  }
+  .tslab blockquote {
+    font-size: 17px; line-height: 1.5; color: var(--neutral-900);
+    letter-spacing: -0.005em; font-weight: 500; margin: 0; flex: 1;
+  }
+  .tslab blockquote em { font-style: italic; color: var(--primary-700); display: inline-block; padding-right: .1em; margin-right: -.05em; }
+  .tslab .who { display: flex; align-items: center; gap: 12px; padding-top: 22px; border-top: 1px solid var(--border); }
+  .tslab .av {
+    width: 40px; height: 40px; border-radius: 999px;
+    background: linear-gradient(140deg, var(--primary-300), var(--primary-600));
+    color: white; display: grid; place-items: center; font-weight: 700; font-size: 13px;
+  }
+  .tslab .nm { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+  .tslab .rl { font-family: var(--font-label); font-size: 12px; color: var(--neutral-500); margin-top: 2px; }
+
+  /* =========================================================
+     PRICING
+     ========================================================= */
+  .pricing-wrap {
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: stretch;
+    max-width: 1100px; margin: 0 auto;
+  }
+  @media (max-width: 880px) { .pricing-wrap { grid-template-columns: 1fr; } }
+  .p-card {
+    position: relative; background: white; border: 1px solid var(--border);
+    border-radius: 28px; padding: 44px;
+    box-shadow: 0 30px 60px -30px rgba(30,15,70,.2);
+  }
+  .p-card::before {
+    content: ""; position: absolute; inset: -1px; border-radius: 28px;
+    background: linear-gradient(140deg, var(--primary-300), transparent 40%, var(--tertiary-200) 120%);
+    z-index: -1; opacity: .5;
+  }
+  .p-name {
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--primary-600);
+  }
+  .p-price { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+  .p-price .big { font-size: 72px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; color: var(--neutral-900); font-family: var(--font-sans); }
+  .p-price .per { font-family: var(--font-label); color: var(--neutral-500); font-size: 14px; }
+  .p-sub { font-family: var(--font-label); font-size: 13px; color: var(--neutral-500); margin-top: 4px; }
+  .p-feats { list-style: none; padding: 0; margin: 30px 0 32px; display: grid; gap: 12px; }
+  .p-feats li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--neutral-800); }
+  .p-feats .ck {
+    width: 22px; height: 22px; border-radius: 999px; background: var(--tertiary-100); color: var(--tertiary-700);
+    display: grid; place-items: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .p-feats .ck svg { width: 12px; height: 12px; stroke-width: 3; }
+  .p-badge {
+    position: absolute; top: -14px; left: 44px;
+    background: var(--primary); color: white;
+    font-family: var(--font-label); font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 999px; letter-spacing: .02em;
+  }
+  .p-privacy {
+    margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-label); font-size: 12px; color: var(--neutral-500);
+  }
+  .p-side {
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .p-side h3 { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+  .p-side h3 em {
+    font-style: italic;
+    background: linear-gradient(112deg, var(--primary-700), var(--primary-500));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .p-side p { margin-top: 16px; color: var(--neutral-600); font-size: 16px; line-height: 1.6; }
+  .p-facility {
+    margin-top: 26px; padding: 22px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+    color: white; position: relative; overflow: hidden;
+  }
+  .p-facility::before {
+    content: ""; position: absolute; inset: 0; opacity: .18;
+    background: radial-gradient(320px 220px at 100% 100%, var(--tertiary-200), transparent 60%);
+    pointer-events: none;
+  }
+  .p-facility .h {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--tertiary-300);
+  }
+  .p-facility .h svg { width: 13px; height: 13px; }
+  .p-facility h4 { margin-top: 12px; font-size: 20px; font-weight: 700; letter-spacing: -0.015em; color: white; }
+  .p-facility p { margin-top: 8px; color: rgba(255,255,255,.72); font-size: 14px; }
+  .p-facility a {
+    position: relative; display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
+    font-family: var(--font-label); font-weight: 600; font-size: 13px; color: var(--tertiary-200);
+  }
+  .p-facility a svg { width: 14px; height: 14px; }
+  .p-facility a:hover { color: white; }
+
+  /* =========================================================
+     FACILITIES — dark feature section
+     ========================================================= */
+  .fac {
+    background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-700) 60%, var(--primary-600) 100%);
+    border-radius: 40px; padding: 80px; color: white; position: relative; overflow: hidden;
+  }
+  @media (max-width: 820px) { .fac { padding: 48px 28px; border-radius: 28px; } }
+  .fac::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(720px 420px at 8% 100%, rgba(152,255,217,.18), transparent 60%),
+      radial-gradient(520px 320px at 100% 0%, rgba(157,134,197,.32), transparent 62%);
+  }
+  .fac-grid { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  @media (max-width: 920px) { .fac-grid { grid-template-columns: 1fr; } }
+  .fac h2 {
+    font-family: var(--font-sans); font-weight: 800;
+    font-size: clamp(34px, 4.4vw, 56px); letter-spacing: -0.03em; line-height: 1.04; color: white;
+  }
+  .fac h2 em {
+    font-style: italic;
+    background: linear-gradient(112deg, var(--tertiary-300), var(--tertiary-200));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .fac p { color: rgba(255,255,255,.8); font-size: 17px; line-height: 1.6; margin-top: 22px; max-width: 520px; }
+  .fac ul { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 14px; }
+  .fac ul li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(255,255,255,.92); }
+  .fac ul li svg { width: 18px; height: 18px; color: var(--tertiary-200); margin-top: 2px; flex-shrink: 0; }
+  .fac-cta { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .fac-cta .btn.primary { background: white; color: var(--primary-800); }
+  .fac-cta .btn.primary:hover { background: var(--tertiary-100); color: var(--primary-900); }
+  .fac-price {
+    font-family: var(--font-label); font-size: 13px; color: rgba(255,255,255,.7);
+    padding-left: 14px; border-left: 1px solid rgba(255,255,255,.25);
+  }
+  .fac-price strong { color: white; font-weight: 700; }
+
+  /* Dashboard mock */
+  .dash {
+    background: white; border-radius: 20px; padding: 18px;
+    color: var(--neutral-900);
+    box-shadow: 0 50px 100px -40px rgba(0,0,0,.5);
+    transform: perspective(1400px) rotateY(-6deg) rotateX(2deg);
+    transform-origin: center;
+  }
+  .dash-head { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .dash-head .d { width: 10px; height: 10px; border-radius: 999px; }
+  .dash-title { margin-left: 4px; font-weight: 700; font-size: 13px; letter-spacing: -0.01em; }
+  .dash-title .muted { font-weight: 500; color: var(--neutral-500); }
+  .dash-tag {
+    margin-left: auto; font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    padding: 4px 9px; border-radius: 999px; background: var(--tertiary-50); color: var(--tertiary-700);
+  }
+  .dash-tag.warn { background: #FFEED6; color: #A25F11; }
+  .dash-tag.neutral { background: var(--neutral-100); color: var(--neutral-600); }
+  .dash-row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--border); }
+  .dash-row:last-child { border: 0; padding-bottom: 4px; }
+  .dash-av {
+    width: 32px; height: 32px; border-radius: 999px; background: var(--primary-100);
+    display: grid; place-items: center; color: var(--primary-700); font-weight: 700; font-size: 12px;
+  }
+  .dash-nm { font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
+  .dash-meta { font-family: var(--font-label); font-size: 11px; color: var(--neutral-500); margin-top: 1px; }
+
+  /* =========================================================
+     FAQ
+     ========================================================= */
+  .faqs { max-width: 820px; margin: 0 auto; display: grid; gap: 10px; }
+  .faq {
+    border: 1px solid var(--border); border-radius: 18px;
+    background: white; overflow: hidden; transition: border-color var(--dur);
+  }
+  .faq[open] { border-color: var(--primary-300); box-shadow: 0 10px 28px -14px rgba(123,97,173,.22); }
+  .faq summary {
+    list-style: none; cursor: pointer; padding: 22px 26px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    font-family: var(--font-sans); font-weight: 700; font-size: 17px;
+    letter-spacing: -0.01em; color: var(--neutral-900);
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .plus {
+    width: 30px; height: 30px; border-radius: 10px; background: var(--neutral-100);
+    display: grid; place-items: center; color: var(--neutral-600);
+    transition: transform var(--dur), background var(--dur), color var(--dur);
+    flex-shrink: 0;
+  }
+  .faq summary .plus svg { width: 15px; height: 15px; }
+  .faq[open] summary .plus { transform: rotate(45deg); background: var(--primary); color: white; }
+  .faq .body { padding: 0 26px 24px; color: var(--neutral-600); font-size: 15px; line-height: 1.65; }
+
+  /* =========================================================
+     FINAL CTA — deck ink slide style
+     ========================================================= */
+  .final {
+    background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 60%, #2E2147 100%);
+    color: white;
+    border-radius: 40px; padding: 96px 40px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  @media (max-width: 720px) { .final { padding: 64px 24px; border-radius: 28px; } }
+  .final::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(620px 320px at 20% 20%, rgba(152,255,217,.16), transparent 55%),
+      radial-gradient(700px 380px at 80% 80%, rgba(123,97,173,.38), transparent 58%);
+  }
+  .final .eyebrow { position: relative; color: var(--tertiary-300); justify-content: center; }
+  .final h2 {
+    position: relative; font-family: var(--font-sans); font-weight: 800;
+    font-size: clamp(40px, 5.6vw, 78px); letter-spacing: -0.035em; line-height: 1.02;
+    color: white; max-width: 900px; margin: 22px auto 0;
+  }
+  .final h2 em {
+    font-style: italic;
+    background: linear-gradient(112deg, var(--tertiary-300), var(--tertiary-200) 60%, var(--tertiary-100));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: inline-block; padding-right: .12em; margin-right: -.06em;
+  }
+  .final p {
+    position: relative; color: rgba(255,255,255,.75); font-size: 18px;
+    margin: 22px auto 0; max-width: 560px; line-height: 1.55;
+  }
+  .final .row { position: relative; margin-top: 38px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .final .btn.primary { background: white; color: var(--neutral-900); }
+  .final .btn.primary:hover { background: var(--tertiary-100); }
+  .final .btn.ghost { color: white; border: 1.5px solid rgba(255,255,255,.24); }
+  .final .btn.ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.5); }
+  .final .fine {
+    position: relative; margin-top: 24px;
+    font-family: var(--font-label); font-size: 13px; color: rgba(255,255,255,.5);
+  }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+  footer { padding: 88px 0 48px; background: var(--bg); border-top: 1px solid var(--border); }
+  .fgrid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 48px; }
+  @media (max-width: 860px) { .fgrid { grid-template-columns: 1fr 1fr; } }
+  .fgrid h5 {
+    font-family: var(--font-label); font-size: 11px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--neutral-500);
+    margin-bottom: 18px;
+  }
+  .fgrid a { display: block; padding: 5px 0; font-size: 14px; color: var(--neutral-700); transition: color var(--dur); }
+  .fgrid a:hover { color: var(--primary); }
+  .fgrid .about { max-width: 340px; font-size: 14px; color: var(--neutral-600); line-height: 1.6; margin-top: 14px; }
+  .disclaimer {
+    margin-top: 48px; padding: 18px 22px; border-radius: 14px;
+    background: var(--neutral-200); color: var(--neutral-600);
+    font-family: var(--font-label); font-size: 12px; line-height: 1.55; max-width: 780px;
+  }
+  .fbottom {
+    margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    font-family: var(--font-label); font-size: 12px; color: var(--neutral-500);
+  }
+
+  /* =========================================================
+     TWEAKS PANEL
+     ========================================================= */
+  .tw-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 200;
+    width: 300px; padding: 18px; border-radius: 18px;
+    background: rgba(255,255,255,.97); backdrop-filter: blur(24px);
+    border: 1px solid var(--border); box-shadow: 0 30px 60px -25px rgba(15,15,19,.3);
+    display: none; font-family: var(--font-label);
+  }
+  .tw-panel.on { display: block; animation: popin .24s var(--ease); }
+  @keyframes popin { from{ opacity: 0; transform: translateY(8px);} to{ opacity:1; transform: translateY(0);} }
+  .tw-panel h4 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; color: var(--neutral-900); }
+  .tw-panel .sub { font-size: 11px; color: var(--neutral-500); margin-bottom: 14px; }
+  .tw-row { display: grid; gap: 6px; margin-bottom: 14px; }
+  .tw-row label { font-size: 10px; font-weight: 600; color: var(--neutral-600); letter-spacing: .08em; text-transform: uppercase; }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tw-sw {
+    width: 26px; height: 26px; border-radius: 9px; border: 2px solid transparent;
+    cursor: pointer; transition: transform var(--dur), border-color var(--dur);
+  }
+  .tw-sw:hover { transform: scale(1.08); }
+  .tw-sw.active { border-color: var(--neutral-900); }
+  .tw-row input[type=text], .tw-row select {
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px;
+    font-family: var(--font-sans); color: var(--neutral-900); outline: none;
+    transition: border-color var(--dur); background: white;
+  }
+  .tw-row input[type=text]:focus { border-color: var(--primary); }
+
+  /* entrance */
+  .fade { opacity: 0; transform: translateY(16px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .fade.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- =================== NAV =================== -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-row">
+    <a href="#" class="brand" aria-label="Yapper">
+      <span class="mark">
+        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <g class="petal">
+            <ellipse cx="24" cy="9"  rx="4.2" ry="7.5"/>
+            <ellipse cx="24" cy="39" rx="4.2" ry="7.5"/>
+            <ellipse cx="9"  cy="24" rx="7.5" ry="4.2"/>
+            <ellipse cx="39" cy="24" rx="7.5" ry="4.2"/>
+            <ellipse cx="13.4" cy="13.4" rx="4.2" ry="7.5" transform="rotate(-45 13.4 13.4)"/>
+            <ellipse cx="34.6" cy="34.6" rx="4.2" ry="7.5" transform="rotate(-45 34.6 34.6)"/>
+            <ellipse cx="34.6" cy="13.4" rx="4.2" ry="7.5" transform="rotate(45 34.6 13.4)"/>
+            <ellipse cx="13.4" cy="34.6" rx="4.2" ry="7.5" transform="rotate(45 13.4 34.6)"/>
+          </g>
+          <g class="petal-mint">
+            <ellipse cx="24" cy="9" rx="4.2" ry="7.5"/>
+          </g>
+        </svg>
+      </span>
+      Yapper
+    </a>
+    <div class="nav-links" aria-label="Primary">
+      <a href="#demo">Demo</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#voices">Voices</a>
+      <a href="#facilities">For facilities</a>
+      <a href="#pricing">Pricing</a>
+      <a href="Insights.html">Insights</a>
+    </div>
+    <div class="nav-cta">
+      <a class="nav-signin" href="#">Sign in</a>
+      <a class="btn primary" href="#pricing">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
+    </div>
+  </div>
+</nav>
+
+<!-- =================== HERO =================== -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="fade">
+      <span class="eyebrow">A friend who calls every day</span>
+      <h1 class="display">
+        Your mom deserves <em>someone</em> who <em>calls</em>&nbsp;— even on the days you can't.
+      </h1>
+      <p class="lede">
+        Yapper is a warm, patient phone companion for the people you love.
+        Every morning, afternoon, or evening — on whatever phone they already own —
+        Yapper calls for a real conversation, then sends you a gentle note about how it went.
+      </p>
+      <div class="hero-cta">
+        <a class="btn primary xl" href="#pricing">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a class="btn outlined xl" href="#how-it-works"><i data-lucide="play-circle"></i> See how it works</a>
+      </div>
+      <div class="hero-meta">
+        <span><strong>No app</strong> for them to install</span>
+        <span class="sep"></span>
+        <span>Works on <strong>any phone</strong></span>
+        <span class="sep"></span>
+        <span><strong>7 days free</strong>, cancel anytime</span>
+      </div>
+    </div>
+
+    <div class="hero-visual fade" style="transition-delay: .15s">
+      <div class="hv-photo">
+        <img id="heroImg" src="assets/senior-purple-blazer.jpg" alt="A senior woman smiling warmly during a phone call" />
+      </div>
+
+      <div class="hv-call">
+        <div class="av"><i data-lucide="phone-call"></i></div>
+        <div>
+          <div class="nm">Rose is calling Mom</div>
+          <div class="sb"><span class="pulse"></span> Connected · 00:04:12</div>
+        </div>
+      </div>
+
+      <div class="hv-quote">
+        <div class="l">Today at 9:14 am</div>
+        <div class="q">"Mom lit up talking about <em>the garden</em>. She says her hip feels better this week."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- logo row -->
+  <div class="wrap">
+    <div class="trust-row">
+      <div class="t-label">Trusted by families<br/>&amp; care partners</div>
+      <div class="trust-marks">
+        <div class="tm"><span class="g"><span>SO</span></span> Silver Oak</div>
+        <div class="tm"><span class="g"><span>GS</span></span> Grove Senior</div>
+        <div class="tm"><span class="g"><span>RL</span></span> Rosewood Living</div>
+        <div class="tm"><span class="g"><span>CH</span></span> Cedar Haven</div>
+        <div class="tm"><span class="g"><span>WW</span></span> Willowbrook</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PROBLEM (STATS) =================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">The quiet epidemic</span>
+      <h2 class="display">You can't always be there. <em>Yapper can.</em></h2>
+      <p>Loneliness is as harmful to older adults as smoking fifteen cigarettes a day. Most families can't call daily. Yapper quietly fills that gap — with warmth, patience, and time.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat fade">
+        <div class="num"><em>43%</em></div>
+        <h4>report feeling lonely regularly</h4>
+        <p>Nearly half of adults over 65 say loneliness is a recurring part of daily life.</p>
+        <div class="src">Source · National Poll on Healthy Aging</div>
+      </div>
+      <div class="stat fade" style="transition-delay: .08s">
+        <div class="num"><em>1 in 3</em></div>
+        <h4>go a whole day without speaking</h4>
+        <p>Many seniors go 24 hours without saying a single word to another person.</p>
+        <div class="src">Source · Age UK</div>
+      </div>
+      <div class="stat fade" style="transition-delay: .16s">
+        <div class="num"><em>5.8M</em></div>
+        <h4>living with Alzheimer's</h4>
+        <p>Americans with Alzheimer's today — projected to triple by 2060.</p>
+        <div class="src">Source · Alzheimer's Association</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== INTEGRATED DEMO =================== -->
+<section class="section" id="demo">
+  <div class="wrap">
+    <div class="demo-wrap fade">
+      <div class="demo-grid">
+
+        <!-- Phone with Yapper app -->
+        <div class="demo-phone" aria-hidden="true">
+          <div class="demo-screen">
+            <div class="ds-status">
+              <span>9:41</span>
+              <span class="right">
+                <i data-lucide="signal"></i>
+                <i data-lucide="wifi"></i>
+                <i data-lucide="battery-full"></i>
+              </span>
+            </div>
+
+            <div class="ds-header">
+              <div class="greet">Tuesday, April 28</div>
+              <div class="h1">Mom's check-ins</div>
+            </div>
+
+            <!-- Next call card -->
+            <div class="ds-card next">
+              <span class="label">Next call</span>
+              <div class="row">
+                <div class="who">
+                  <div class="av">R</div>
+                  <div>
+                    <div class="nm">Rose · with Margaret</div>
+                    <div class="sb">Wed · 9:00 AM</div>
+                  </div>
+                </div>
+                <div class="when">in 21h</div>
+              </div>
+              <div class="cta">
+                <span class="pill solid">Call now</span>
+                <span class="pill">Add a note</span>
+              </div>
+            </div>
+
+            <div class="ds-section">Yesterday's call</div>
+
+            <!-- Recap card -->
+            <div class="ds-recap">
+              <div class="top">
+                <span>9:14 AM · 11 min</span>
+                <span class="mood"><span class="dot"></span> Bright mood</span>
+              </div>
+              <div class="quote">"Mom lit up talking about <em>the garden</em>. She says her hip feels better this week."</div>
+              <div class="tags">
+                <span class="tag">Garden</span>
+                <span class="tag">Frank</span>
+                <span class="tag">Hip · improving</span>
+              </div>
+            </div>
+
+            <!-- Bottom tabs -->
+            <div class="ds-tabs">
+              <div class="ds-tab active">
+                <i data-lucide="home"></i>
+                <span>Home</span>
+              </div>
+              <div class="ds-tab">
+                <i data-lucide="calendar"></i>
+                <span>Schedule</span>
+              </div>
+              <div class="ds-tab">
+                <i data-lucide="message-circle"></i>
+                <span>Recaps</span>
+              </div>
+              <div class="ds-tab">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice demo + copy -->
+        <div class="demo-side">
+          <span class="eyebrow">Try it now</span>
+          <h2>One app for you. <em>One real voice for them.</em></h2>
+          <p>Schedule, listen back, and read recaps from the Yapper app on your phone. Your loved one just answers a regular call — no app, no devices, no setup.</p>
+
+          <div class="demo-player" id="demoPlayer">
+            <div class="dp-head">
+              <div class="dp-now">
+                <div class="av rose" id="dpAv">
+                  <!-- face injected by JS -->
+                </div>
+                <div class="meta">
+                  <div class="nm" id="dpName">Rose</div>
+                  <div class="sb" id="dpStyle">Warm · Grandmotherly</div>
+                </div>
+              </div>
+              <div class="dp-time"><span id="dpCur">0:00</span> / <span id="dpDur">0:42</span></div>
+            </div>
+
+            <div class="dp-wave" id="dpWave"></div>
+
+            <div class="dp-controls">
+              <button class="dp-btn" type="button" aria-label="Previous"><i data-lucide="skip-back"></i></button>
+              <button class="dp-btn play" type="button" aria-label="Play sample" id="dpPlay">
+                <i data-lucide="play" id="dpPlayIcon"></i>
+              </button>
+              <button class="dp-btn" type="button" aria-label="Next"><i data-lucide="skip-forward"></i></button>
+            </div>
+
+            <div class="dp-voices">
+              <span class="lbl">Voice</span>
+              <button class="dp-voice active" type="button" data-voice="rose">
+                <span class="swatch" style="background: linear-gradient(135deg,#FFD8DD,#F9A6B4)"></span> Rose
+              </button>
+              <button class="dp-voice" type="button" data-voice="charlie">
+                <span class="swatch" style="background: linear-gradient(135deg,#FFE3B8,#F5B97A)"></span> Charlie
+              </button>
+              <button class="dp-voice" type="button" data-voice="mae">
+                <span class="swatch" style="background: linear-gradient(135deg,#C8F2DF,#7ED5B1)"></span> Mae
+              </button>
+              <button class="dp-voice" type="button" data-voice="lena">
+                <span class="swatch" style="background: linear-gradient(135deg,#E4D5FF,#B69CF0)"></span> Lena
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-quotes" id="dpQuotes">
+            <div class="demo-quote active"><span class="who">Rose</span>"Hi Margaret, sweetheart — it's Rose. How's that hip treating you this morning?"</div>
+            <div class="demo-quote"><span class="who">Margaret</span>"Oh, a little better today. The weather's nicer."</div>
+            <div class="demo-quote"><span class="who">Rose</span>"That's wonderful. Did you make it out to the garden? Last week you mentioned the roses were just starting to bloom."</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FEATURES — photo-led split rows =================== -->
+<section class="section section-lav" id="features">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">What Yapper does</span>
+      <h2 class="display">Everything you need to <em>stay close.</em></h2>
+      <p>Built for families who want their loved ones happy, connected, and safe — without the guilt of another missed call.</p>
+    </div>
+
+    <!-- Row 1 — Memory & conversation -->
+    <div class="feat-row fade">
+      <div>
+        <span class="eyebrow">Memory that lasts</span>
+        <h3>Yapper remembers <em>everything.</em></h3>
+        <p>
+          Every call builds on the last — names, stories, favorite songs, grandkids' birthdays.
+          Nothing is forgotten, so every conversation feels like a visit from an old friend.
+        </p>
+        <ul class="checks">
+          <li><i data-lucide="check"></i> Builds a living memory of their life, preferences, and stories</li>
+          <li><i data-lucide="check"></i> Returns to topics they love, at the right moment</li>
+          <li><i data-lucide="check"></i> Gently steers away from subjects you've asked it to avoid</li>
+        </ul>
+      </div>
+      <div class="feat-visual">
+        <div class="transcript">
+          <div class="bubble them">
+            <div class="who">Margaret · 9:14 am</div>
+            I never did finish painting the fence by the rose bed.
+          </div>
+          <div class="bubble yap">
+            <div class="who">Yapper</div>
+            The white one by the kitchen window? You told me Frank said white fences are stubborn things.
+          </div>
+          <div class="bubble them">
+            <div class="who">Margaret</div>
+            Oh goodness — you remembered that?
+          </div>
+          <div class="bubble yap">
+            <div class="who">Yapper</div>
+            Of course. And I think he'd be proud you even got the first coat on.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2 — Summaries -->
+    <div class="feat-row rev fade">
+      <div>
+        <span class="eyebrow">Peace of mind</span>
+        <h3>A gentle note after <em>every call.</em></h3>
+        <p>
+          Know exactly what they talked about, how they're feeling, and anything you should follow up on.
+          Delivered to your inbox — or surfaced in the dashboard when you want to look closer.
+        </p>
+        <ul class="checks">
+          <li><i data-lucide="check"></i> Plain-language summaries — no jargon, no noise</li>
+          <li><i data-lucide="check"></i> Mood read, conversation highlights, flagged concerns</li>
+          <li><i data-lucide="check"></i> Great conversation starters for your own calls</li>
+        </ul>
+      </div>
+      <div class="feat-visual">
+        <div class="email">
+          <div class="eh">
+            <div class="d"><i data-lucide="flower-2"></i></div>
+            <div>
+              <div class="et">Mom's morning call — summary</div>
+              <div class="em">Today · 9:22 am · 6 min 14 sec</div>
+            </div>
+          </div>
+          <div class="ebody">
+            <div class="eline"><span class="dot"></span> Talked about the garden and finishing the fence Frank started.</div>
+            <div class="eline"><span class="dot"></span> Said her hip "feels better this week" — walking more.</div>
+            <div class="eline"><span class="dot"></span> Mentioned missing Susan's visit — might be worth a call.</div>
+            <div class="ekpi">
+              <span class="chip"><i data-lucide="smile" style="width:12px;height:12px"></i> Mood · Upbeat</span>
+              <span class="chip lav"><i data-lucide="heart" style="width:12px;height:12px"></i> Warmth · High</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3 — Schedule & control -->
+    <div class="feat-row fade">
+      <div>
+        <span class="eyebrow">You stay in control</span>
+        <h3>Call <em>when you decide.</em></h3>
+        <p>
+          Schedule daily calls, or trigger one anytime with a tap.
+          Add context before any call — a birthday, a doctor visit, a favorite topic — and Yapper brings it up naturally.
+        </p>
+        <ul class="checks">
+          <li><i data-lucide="check"></i> Recurring calls on any rhythm — daily, weekdays, or custom</li>
+          <li><i data-lucide="check"></i> One-tap "call now" when you want to check in</li>
+          <li><i data-lucide="check"></i> Topic briefs: add a memory, a concern, a thing to bring up</li>
+        </ul>
+      </div>
+      <div class="feat-visual mint">
+        <div class="schedule">
+          <div class="st"><span>This week</span><span>9:00 AM · Rose</span></div>
+          <div class="sgrid">
+            <div class="scell on">MON<span class="t">9:00</span></div>
+            <div class="scell on">TUE<span class="t">9:00</span></div>
+            <div class="scell on">WED<span class="t">9:00</span></div>
+            <div class="scell on">THU<span class="t">9:00</span></div>
+            <div class="scell on">FRI<span class="t">9:00</span></div>
+            <div class="scell">SAT<span class="t">—</span></div>
+            <div class="scell on">SUN<span class="t">11:00</span></div>
+          </div>
+          <div class="srow">
+            <span class="l">Next call</span>
+            <span class="v"><i data-lucide="phone" style="width:14px;height:14px"></i> Tomorrow · 9:00 AM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== HOW IT WORKS =================== -->
+<section class="section" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">How it works</span>
+      <h2 class="display">Simple. Warm. <em>Always there.</em></h2>
+      <p>Getting started takes about five minutes. No app to install. No devices to buy.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step fade">
+        <div class="ic"><i data-lucide="user-plus"></i></div>
+        <div class="n">01</div>
+        <h3>Tell us about them.</h3>
+        <p>Share their name, interests, and favorite memories — plus anything Yapper should avoid. About five minutes.</p>
+        <span class="step-line"></span>
+      </div>
+      <div class="step fade" style="transition-delay: .1s">
+        <div class="ic"><i data-lucide="phone-call"></i></div>
+        <div class="n">02</div>
+        <h3>Yapper calls them.</h3>
+        <p>A regular phone call — landline or mobile. No apps, no setup on their end. Just a warm conversation they'll look forward to.</p>
+        <span class="step-line"></span>
+      </div>
+      <div class="step fade" style="transition-delay: .2s">
+        <div class="ic"><i data-lucide="mail"></i></div>
+        <div class="n">03</div>
+        <h3>You stay close.</h3>
+        <p>After every call, you get a simple summary — what they talked about, how they're feeling, and anything important to know.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== VOICES =================== -->
+<section class="section section-mint" id="voices">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow mint">Meet the voices</span>
+      <h2 class="display">Choose a voice they'll <em class="mint">love.</em></h2>
+      <p>Every person is different. Pick a companion whose voice fits your loved one's personality — warm and gentle, or bright and chatty.</p>
+    </div>
+
+    <div class="personas">
+      <!-- Rose -->
+      <button class="persona rose fade" type="button">
+        <div class="bloom">
+          <svg class="face rose" viewBox="0 0 48 48" fill="none">
+            <g class="head">
+              <!-- gray bun -->
+              <circle cx="24" cy="9" r="4.5" fill="#E8E2DD"/>
+              <!-- hair back -->
+              <path d="M10 22 Q10 11 24 11 Q38 11 38 22 L38 26 L10 26 Z" fill="#D9D2CC"/>
+              <!-- face -->
+              <ellipse cx="24" cy="25" rx="11" ry="12" fill="#F5D8C7"/>
+              <!-- gray hair fringe over forehead -->
+              <path d="M14 18 Q18 14 24 14 Q30 14 34 18 Q33 21 30 20 Q27 18 24 19 Q21 18 18 20 Q15 21 14 18 Z" fill="#E8E2DD"/>
+              <!-- glasses (round) -->
+              <circle cx="19.5" cy="24.5" r="3" fill="#fff" stroke="#7A2E3B" stroke-width="0.9"/>
+              <circle cx="28.5" cy="24.5" r="3" fill="#fff" stroke="#7A2E3B" stroke-width="0.9"/>
+              <line x1="22.5" y1="24.5" x2="25.5" y2="24.5" stroke="#7A2E3B" stroke-width="0.9"/>
+              <!-- eyes -->
+              <ellipse class="blink" cx="19.5" cy="24.5" rx="0.9" ry="1.1" fill="#3F2A21"/>
+              <ellipse class="blink b2" cx="28.5" cy="24.5" rx="0.9" ry="1.1" fill="#3F2A21"/>
+              <!-- cheeks -->
+              <circle cx="16" cy="29" r="1.6" fill="#F4A6B0" opacity=".7"/>
+              <circle cx="32" cy="29" r="1.6" fill="#F4A6B0" opacity=".7"/>
+              <!-- smile -->
+              <path class="smile" d="M20 31 Q24 34 28 31" stroke="#7A2E3B" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Rose</h3>
+        <div class="style">Warm · Grandmotherly</div>
+        <p>Soft, patient, Southern warmth. Perfect for memory care. Never rushed, always kind.</p>
+        <span class="play">
+          <span class="pb"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+          <span class="wave"><span style="height:4px"></span><span style="height:10px"></span><span style="height:6px"></span><span style="height:12px"></span><span style="height:5px"></span></span>
+          Listen
+        </span>
+      </button>
+
+      <!-- Charlie -->
+      <button class="persona charlie fade" type="button" style="transition-delay: .08s">
+        <div class="bloom">
+          <svg class="face charlie" viewBox="0 0 48 48" fill="none">
+            <g class="head">
+              <!-- hair top -->
+              <path d="M12 21 Q12 11 24 11 Q36 11 36 21 L36 22 Q33 19 24 19 Q15 19 12 22 Z" fill="#5C3A1E"/>
+              <!-- face -->
+              <ellipse cx="24" cy="26" rx="11" ry="12" fill="#EDC29A"/>
+              <!-- ears -->
+              <ellipse cx="13.5" cy="26" rx="1.4" ry="2" fill="#D9A57A"/>
+              <ellipse cx="34.5" cy="26" rx="1.4" ry="2" fill="#D9A57A"/>
+              <!-- eyebrows (raised, friendly) -->
+              <path d="M16.5 22 Q19 21 21 22.5" stroke="#5C3A1E" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+              <path d="M27 22.5 Q29 21 31.5 22" stroke="#5C3A1E" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+              <!-- eyes -->
+              <ellipse class="blink" cx="19" cy="25" rx="1" ry="1.3" fill="#3F2A21"/>
+              <ellipse class="blink wink" cx="29" cy="25" rx="1" ry="1.3" fill="#3F2A21"/>
+              <!-- nose -->
+              <path d="M24 26 Q24.6 28.4 24 29.5" stroke="#C68A5E" stroke-width=".8" stroke-linecap="round" fill="none"/>
+              <!-- mustache -->
+              <path d="M19 31 Q21.5 30 24 30.6 Q26.5 30 29 31 Q26.5 32.5 24 31.8 Q21.5 32.5 19 31 Z" fill="#5C3A1E"/>
+              <!-- smile -->
+              <path class="smile" d="M20.5 33.5 Q24 35.5 27.5 33.5" stroke="#5C3A1E" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              <!-- cheeks -->
+              <circle cx="16" cy="30" r="1.4" fill="#F0A876" opacity=".55"/>
+              <circle cx="32" cy="30" r="1.4" fill="#F0A876" opacity=".55"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Charlie</h3>
+        <div class="style">Friendly · Conversational</div>
+        <p>Jovial, story-telling style. Feels like catching up with an old friend over coffee.</p>
+        <span class="play">
+          <span class="pb"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+          <span class="wave"><span style="height:6px"></span><span style="height:12px"></span><span style="height:4px"></span><span style="height:10px"></span><span style="height:8px"></span></span>
+          Listen
+        </span>
+      </button>
+
+      <!-- Mae -->
+      <button class="persona mae fade" type="button" style="transition-delay: .16s">
+        <div class="bloom">
+          <svg class="face mae" viewBox="0 0 48 48" fill="none">
+            <g class="head">
+              <!-- bob hair back -->
+              <path d="M11 22 Q11 11 24 11 Q37 11 37 22 L37 30 Q34 28 32 28 L32 22 Q30 19 24 19 Q18 19 16 22 L16 28 Q14 28 11 30 Z" fill="#2E1F12"/>
+              <!-- face -->
+              <ellipse cx="24" cy="26" rx="10.5" ry="12" fill="#E8C19A"/>
+              <!-- bob fringe -->
+              <path d="M15 19 Q19 16 24 16 Q29 16 33 19 Q31 21 28 20 L24 20 L20 20 Q17 21 15 19 Z" fill="#2E1F12"/>
+              <!-- eyebrows (calm, level) -->
+              <path d="M17 22.5 L21 22.5" stroke="#2E1F12" stroke-width="1" stroke-linecap="round"/>
+              <path d="M27 22.5 L31 22.5" stroke="#2E1F12" stroke-width="1" stroke-linecap="round"/>
+              <!-- eyes (gentle, almond) -->
+              <path class="blink" d="M17.5 25 Q19 26.5 20.5 25" stroke="#2E1F12" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              <path class="blink b2" d="M27.5 25 Q29 26.5 30.5 25" stroke="#2E1F12" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              <!-- small nose -->
+              <circle cx="24" cy="28.5" r=".7" fill="#C99772"/>
+              <!-- gentle smile -->
+              <path class="smile" d="M21 32 Q24 33.5 27 32" stroke="#7A3F2E" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              <!-- earrings -->
+              <circle cx="13.5" cy="28" r=".9" fill="#0A6E50"/>
+              <circle cx="34.5" cy="28" r=".9" fill="#0A6E50"/>
+              <!-- cheeks (subtle) -->
+              <circle cx="16.5" cy="30" r="1.2" fill="#E89A7A" opacity=".4"/>
+              <circle cx="31.5" cy="30" r="1.2" fill="#E89A7A" opacity=".4"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Mae</h3>
+        <div class="style">Calm · Professional</div>
+        <p>Clear, gentle, reassuring. Ideal for health check-ins and daily reminders.</p>
+        <span class="play">
+          <span class="pb"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+          <span class="wave"><span style="height:5px"></span><span style="height:8px"></span><span style="height:12px"></span><span style="height:6px"></span><span style="height:9px"></span></span>
+          Listen
+        </span>
+      </button>
+
+      <!-- Lena -->
+      <button class="persona lena fade" type="button" style="transition-delay: .24s">
+        <div class="bloom">
+          <svg class="face lena" viewBox="0 0 48 48" fill="none">
+            <g class="head">
+              <!-- ponytail -->
+              <ellipse cx="38" cy="20" rx="3" ry="5" transform="rotate(20 38 20)" fill="#C9851F"/>
+              <!-- hair back -->
+              <path d="M11 22 Q11 10 24 10 Q37 10 37 22 L37 26 Q33 23 24 23 Q15 23 11 26 Z" fill="#E8A02D"/>
+              <!-- face -->
+              <ellipse cx="24" cy="26" rx="10.5" ry="12" fill="#F4D2B0"/>
+              <!-- bangs -->
+              <path d="M14 20 Q18 14 24 14 Q30 14 34 20 Q31 19 27 20 L24 20 L21 20 Q17 19 14 20 Z" fill="#E8A02D"/>
+              <!-- eyebrows (high, perky) -->
+              <path d="M17 22 Q19 20.5 21 22" stroke="#A56A1A" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+              <path d="M27 22 Q29 20.5 31 22" stroke="#A56A1A" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+              <!-- big bright eyes -->
+              <circle class="blink" cx="19" cy="25" r="1.5" fill="#3F2A21"/>
+              <circle class="blink b2" cx="29" cy="25" r="1.5" fill="#3F2A21"/>
+              <!-- eye highlights -->
+              <circle cx="19.5" cy="24.5" r=".4" fill="#fff"/>
+              <circle cx="29.5" cy="24.5" r=".4" fill="#fff"/>
+              <!-- freckles -->
+              <circle cx="20" cy="29" r=".4" fill="#C68A5E"/>
+              <circle cx="22" cy="30" r=".4" fill="#C68A5E"/>
+              <circle cx="26" cy="30" r=".4" fill="#C68A5E"/>
+              <circle cx="28" cy="29" r=".4" fill="#C68A5E"/>
+              <!-- big smile -->
+              <path class="smile" d="M19 32 Q24 36 29 32" stroke="#7A3F2E" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              <!-- teeth highlight -->
+              <path d="M21 32.6 Q24 34.4 27 32.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none" opacity=".7"/>
+              <!-- cheeks -->
+              <circle cx="16" cy="30" r="1.8" fill="#F4A6B0" opacity=".75"/>
+              <circle cx="32" cy="30" r="1.8" fill="#F4A6B0" opacity=".75"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Lena</h3>
+        <div class="style">Bright · Energetic</div>
+        <p>Upbeat, engaging, and lively. Great for seniors who love a good chat.</p>
+        <span class="play">
+          <span class="pb"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+          <span class="wave"><span style="height:8px"></span><span style="height:4px"></span><span style="height:12px"></span><span style="height:10px"></span><span style="height:6px"></span></span>
+          Listen
+        </span>
+      </button>
+    </div>
+
+    <div style="text-align:center; margin-top: 56px;">
+      <a href="#pricing" class="btn primary lg">Try a demo call · pick your voice <i data-lucide="arrow-right" class="arrow"></i></a>
+      <div style="margin-top: 14px; font-family: var(--font-label); font-size: 13px; color: var(--neutral-500);">
+        Hear exactly what your loved one would experience — in about two minutes.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PROMISE (compare) =================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">The Yapper promise</span>
+      <h2 class="display">Not another robot. <em>A friend.</em></h2>
+      <p>We built Yapper by listening to seniors and the families who love them. Here's the difference that shows up on every call.</p>
+    </div>
+
+    <div class="promise fade">
+      <div class="divider"></div>
+      <div class="promise-grid">
+        <div class="cold">
+          <h4>Most voice AI</h4>
+          <ul>
+            <li><span class="xo"><i data-lucide="x"></i></span> Robotic scripts. Interrupts mid-sentence.</li>
+            <li><span class="xo"><i data-lucide="x"></i></span> Starts every call from scratch.</li>
+            <li><span class="xo"><i data-lucide="x"></i></span> Requires an app, a smart speaker, or a new device.</li>
+            <li><span class="xo"><i data-lucide="x"></i></span> Treats seniors like a support ticket.</li>
+            <li><span class="xo"><i data-lucide="x"></i></span> Family is the last to know anything.</li>
+          </ul>
+        </div>
+        <div class="warm">
+          <h4>Yapper</h4>
+          <ul>
+            <li><span class="xo"><i data-lucide="check"></i></span> Patient, warm, never rushed. Waits to be told.</li>
+            <li><span class="xo"><i data-lucide="check"></i></span> Remembers everything that came before.</li>
+            <li><span class="xo"><i data-lucide="check"></i></span> A normal phone call — landline or mobile.</li>
+            <li><span class="xo"><i data-lucide="check"></i></span> Built around dignity, consent, and real conversation.</li>
+            <li><span class="xo"><i data-lucide="check"></i></span> A gentle summary in your inbox after every call.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TESTIMONIALS =================== -->
+<section class="section section-lav">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">Loved by families</span>
+      <h2 class="display">Real stories from <em>real families.</em></h2>
+    </div>
+
+    <div class="tslabs">
+      <div class="tslab fade">
+        <div class="qm">"</div>
+        <blockquote>Mom looks forward to her Yapper call every day. She talks about <em>"her friend who calls"</em> — she doesn't even think of it as AI.</blockquote>
+        <div class="who">
+          <div class="av">SM</div>
+          <div><div class="nm">Sarah M.</div><div class="rl">Daughter · California</div></div>
+        </div>
+      </div>
+      <div class="tslab fade" style="transition-delay: .08s">
+        <div class="qm">"</div>
+        <blockquote>Dad tells the same stories about the Pioneer Inn, and Yapper remembers <em>every detail.</em> It's like he has someone who truly listens.</blockquote>
+        <div class="who">
+          <div class="av">MR</div>
+          <div><div class="nm">Michael R.</div><div class="rl">Son · Texas</div></div>
+        </div>
+      </div>
+      <div class="tslab fade" style="transition-delay: .16s">
+        <div class="qm">"</div>
+        <blockquote>I used to worry all day about Mom being alone. Now I get a summary after every call and I know <em>she's okay.</em> It's changed everything.</blockquote>
+        <div class="who">
+          <div class="av">DL</div>
+          <div><div class="nm">David L.</div><div class="rl">Son · New York</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PRICING =================== -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">Simple pricing</span>
+      <h2 class="display">Start free. <em>Keep only if it helps.</em></h2>
+      <p>See the difference daily companionship makes. No commitment required.</p>
+    </div>
+
+    <div class="pricing-wrap">
+      <div class="p-card fade">
+        <span class="p-badge">7 days free</span>
+        <div class="p-name">Yapper for families</div>
+        <div class="p-price">
+          <span class="big">$29.99</span>
+          <span class="per">/month</span>
+        </div>
+        <div class="p-sub">after free trial · cancel anytime</div>
+
+        <ul class="p-feats">
+          <li><span class="ck"><i data-lucide="check"></i></span> 7-day free trial — no credit card required</li>
+          <li><span class="ck"><i data-lucide="check"></i></span> 10 min/day of conversation — unlimited dials</li>
+          <li><span class="ck"><i data-lucide="check"></i></span> Memory that grows over time</li>
+          <li><span class="ck"><i data-lucide="check"></i></span> Detailed call summaries for family</li>
+          <li><span class="ck"><i data-lucide="check"></i></span> Works on any phone — landline or mobile</li>
+          <li><span class="ck"><i data-lucide="check"></i></span> Cancel anytime</li>
+        </ul>
+
+        <a class="btn primary xl" style="width:100%" href="#">Start free trial <i data-lucide="arrow-right" class="arrow"></i></a>
+
+        <div class="p-privacy">
+          <i data-lucide="shield-check" style="width:14px;height:14px;"></i>
+          Privacy-first · No data sold · HIPAA-aware
+        </div>
+      </div>
+
+      <div class="p-side fade" style="transition-delay: .1s">
+        <h3>One plan. No upsells. <em>Built to be fair.</em></h3>
+        <p>Families don't need more tech. They need relief. We priced Yapper so every family can afford a daily companion call — and we'll tell you straight if it's not the right fit.</p>
+
+        <div class="p-facility">
+          <div class="h"><i data-lucide="building-2"></i> Care facility?</div>
+          <h4>Volume pricing from $10/resident</h4>
+          <p>One dashboard, full compliance, red-flag alerts. Built for homes, wings, and memory-care units.</p>
+          <a href="#facilities">Contact our team <i data-lucide="arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FACILITIES =================== -->
+<section class="section" id="facilities">
+  <div class="wrap">
+    <div class="fac fade">
+      <div class="fac-grid">
+        <div>
+          <span class="eyebrow white" style="color: var(--tertiary-300);">For care facilities</span>
+          <h2 style="margin-top: 18px;">Companionship at <em>scale.</em></h2>
+          <p>Give every resident a daily companion call — managed from one enterprise dashboard with full compliance and reporting built in.</p>
+
+          <ul>
+            <li><i data-lucide="check"></i> Enterprise dashboard — homes, wings, floors, rooms</li>
+            <li><i data-lucide="check"></i> AI red-flag alerts for distress, pain, or cognitive changes</li>
+            <li><i data-lucide="check"></i> Compliance &amp; audit logs — every call timestamped</li>
+            <li><i data-lucide="check"></i> Outcomes tracking — mood trends, weekly reports</li>
+            <li><i data-lucide="check"></i> Resident dial-in with PIN for phone-booth setups</li>
+          </ul>
+
+          <div class="fac-cta">
+            <a href="#" class="btn primary lg">Book a facility demo <i data-lucide="arrow-right" class="arrow"></i></a>
+            <span class="fac-price">From <strong>$10</strong>/resident/month</span>
+          </div>
+        </div>
+
+        <div class="dash" aria-hidden="true">
+          <div class="dash-head">
+            <span class="d" style="background:#ff5f57"></span>
+            <span class="d" style="background:#febc2e"></span>
+            <span class="d" style="background:#28c840"></span>
+            <span class="dash-title">West Wing <span class="muted">· 28 residents</span></span>
+            <span class="dash-tag neutral" style="margin-left:auto;">Today</span>
+          </div>
+          <div class="dash-row">
+            <div class="dash-av">EH</div>
+            <div><div class="dash-nm">Eleanor H. · Rm 214</div><div class="dash-meta">9:14 AM · 6 min · upbeat</div></div>
+            <span class="dash-tag">Well</span>
+          </div>
+          <div class="dash-row">
+            <div class="dash-av">RC</div>
+            <div><div class="dash-nm">Robert C. · Rm 207</div><div class="dash-meta">9:42 AM · 4 min · mentioned hip pain</div></div>
+            <span class="dash-tag warn">Follow up</span>
+          </div>
+          <div class="dash-row">
+            <div class="dash-av">MJ</div>
+            <div><div class="dash-nm">Margaret J. · Rm 219</div><div class="dash-meta">10:03 AM · 8 min · memory care</div></div>
+            <span class="dash-tag">Well</span>
+          </div>
+          <div class="dash-row">
+            <div class="dash-av">TB</div>
+            <div><div class="dash-nm">Thomas B. · Rm 221</div><div class="dash-meta">Scheduled · 2:00 PM</div></div>
+            <span class="dash-tag neutral">Queued</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FAQ =================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head fade">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="display">Questions families <em>actually ask.</em></h2>
+    </div>
+
+    <div class="faqs fade">
+      <details class="faq">
+        <summary>Will my grandparent know it's AI? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">Most seniors we work with treat Yapper like a real friend. The conversations are warm, natural, and patient. Many families tell us their loved one talks about "their friend who calls" without ever thinking of it as technology.</div>
+      </details>
+      <details class="faq">
+        <summary>How well does Yapper communicate with elderly people? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">Yapper is built specifically for seniors. It speaks clearly, never rushes, and waits patiently if your loved one needs a moment. If they don't understand something, Yapper repeats it gently and follows their lead.</div>
+      </details>
+      <details class="faq">
+        <summary>Can Yapper tell me if something is wrong? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">Yes. After every call, you get a summary of what was discussed and how your loved one seemed. If Yapper detects signs of distress, pain, loneliness, or cognitive changes, you'll be alerted so you can follow up.</div>
+      </details>
+      <details class="faq">
+        <summary>What if they don't want to talk some days? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">That's completely fine. Yapper always asks for consent at the start of each call. If they're not in the mood, Yapper says goodbye warmly and tries again next time. No pressure, ever.</div>
+      </details>
+      <details class="faq">
+        <summary>Does my parent need any technology? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">Not at all. Yapper calls them on their regular phone — landline or mobile. They just answer and talk. No apps, no devices, nothing to learn.</div>
+      </details>
+      <details class="faq">
+        <summary>What happens on the calls? <span class="plus"><i data-lucide="plus"></i></span></summary>
+        <div class="body">Whatever your loved one wants to talk about — memories, family stories, hobbies, current events, or just how their day is going. You can also add context before a call — a birthday, a doctor visit — so Yapper brings it up naturally.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FINAL CTA =================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="final fade">
+      <span class="eyebrow">Start today</span>
+      <h2>Don't let them spend <em>another day alone.</em></h2>
+      <p>Every day without companionship is a day spent in silence. Start today — it takes about five minutes.</p>
+      <div class="row">
+        <a href="#pricing" class="btn primary xl">Get started free <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a href="#how-it-works" class="btn ghost xl">See how it works</a>
+      </div>
+      <div class="fine">7-day free trial · No credit card · Cancel anytime</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a href="#" class="brand"><span class="mark">
+          <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <g class="petal">
+              <ellipse cx="24" cy="9"  rx="4.2" ry="7.5"/>
+              <ellipse cx="24" cy="39" rx="4.2" ry="7.5"/>
+              <ellipse cx="9"  cy="24" rx="7.5" ry="4.2"/>
+              <ellipse cx="39" cy="24" rx="7.5" ry="4.2"/>
+              <ellipse cx="13.4" cy="13.4" rx="4.2" ry="7.5" transform="rotate(-45 13.4 13.4)"/>
+              <ellipse cx="34.6" cy="34.6" rx="4.2" ry="7.5" transform="rotate(-45 34.6 34.6)"/>
+              <ellipse cx="34.6" cy="13.4" rx="4.2" ry="7.5" transform="rotate(45 34.6 13.4)"/>
+              <ellipse cx="13.4" cy="34.6" rx="4.2" ry="7.5" transform="rotate(45 13.4 34.6)"/>
+            </g>
+            <g class="petal-mint">
+              <ellipse cx="24" cy="9" rx="4.2" ry="7.5"/>
+            </g>
+          </svg>
+        </span> Yapper</a>
+        <p class="about">A companion for your loved ones, whenever they need one. Connection with care — powered by a voice that remembers.</p>
+      </div>
+      <div>
+        <h5>Product</h5>
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#voices">Voices</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <a href="#facilities">For facilities</a>
+        <a href="#">Blog</a>
+        <a href="#">Research</a>
+        <a href="#">About</a>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <a href="mailto:hello@yapper.care">hello@yapper.care</a>
+        <a href="https://www.yapper.care">www.yapper.care</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      Yapper is a companionship service, not a medical or emergency service. It is not a substitute for professional care. If you or your loved one is experiencing an emergency, please call 911 or your local emergency number.
+    </div>
+
+    <div class="fbottom">
+      <div>© 2026 Yapper Care. All rights reserved.</div>
+      <div>Made with care · Making every senior feel heard</div>
+    </div>
+  </div>
+</footer>
+
+<!-- =================== TWEAKS =================== -->
+<div class="tw-panel" id="twPanel">
+  <h4>Tweaks</h4>
+  <div class="sub">Explore directions — changes save on disk.</div>
+  <div class="tw-row">
+    <label>Primary color</label>
+    <div class="swatches" id="swPrimary">
+      <button class="tw-sw" data-color="#7B61AD" style="background:#7B61AD" title="Deep lavender"></button>
+      <button class="tw-sw" data-color="#4E3E71" style="background:#4E3E71" title="Aubergine"></button>
+      <button class="tw-sw" data-color="#5C6BC0" style="background:#5C6BC0" title="Periwinkle"></button>
+      <button class="tw-sw" data-color="#0E8F68" style="background:#0E8F68" title="Deep mint"></button>
+      <button class="tw-sw" data-color="#C2410C" style="background:#C2410C" title="Warm rust"></button>
+      <button class="tw-sw" data-color="#111118" style="background:#111118" title="Monochrome"></button>
+    </div>
+  </div>
+  <div class="tw-row">
+    <label>Accent</label>
+    <div class="swatches" id="swAccent">
+      <button class="tw-sw" data-color="#98FFD9" style="background:#98FFD9"></button>
+      <button class="tw-sw" data-color="#FFD17A" style="background:#FFD17A"></button>
+      <button class="tw-sw" data-color="#F9A6B4" style="background:#F9A6B4"></button>
+      <button class="tw-sw" data-color="#B69CF0" style="background:#B69CF0"></button>
+    </div>
+  </div>
+  <div class="tw-row">
+    <label>Hero photo</label>
+    <select id="twPhoto">
+      <option value="assets/senior-purple-blazer.jpg">Purple blazer portrait</option>
+      <option value="assets/senior-patricia-bozan.jpg">Candid warm portrait</option>
+      <option value="assets/senior-ageing-better.jpg">Ageing Better portrait</option>
+      <option value="assets/senior-beanie-smartphone.jpg">Beanie &amp; smartphone</option>
+      <option value="assets/senior-rotary-phone.jpg">Rotary phone</option>
+      <option value="assets/senior-moe-magners.jpg">Quiet moment</option>
+      <option value="assets/senior-mart-production.jpg">Cozy at home</option>
+    </select>
+  </div>
+</div>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "primary": "#7B61AD",
+    "accent": "#98FFD9",
+    "heroPhoto": "assets\/senior-patricia-bozan.jpg"
+  }/*EDITMODE-END*/;
+
+  if (window.lucide) lucide.createIcons();
+
+  /* ---------- Demo player ---------- */
+  (function initDemoPlayer() {
+    const wave = document.getElementById('dpWave');
+    if (!wave) return;
+    const N = 56;
+    const heights = [];
+    for (let i = 0; i < N; i++) {
+      const h = 12 + Math.round(Math.sin(i * 0.45) * 10 + Math.cos(i * 0.21) * 8 + Math.random() * 14);
+      heights.push(Math.max(6, Math.min(48, h)));
+    }
+    heights.forEach(h => {
+      const s = document.createElement('span');
+      s.style.height = h + 'px';
+      wave.appendChild(s);
+    });
+
+    const VOICES = {
+      rose:    { name: 'Rose',    style: 'Warm · Grandmotherly',  fill: '#7A2E3B', quotes: [
+        ['Rose', '"Hi Margaret, sweetheart — it\'s Rose. How\'s that hip treating you this morning?"'],
+        ['Margaret', '"Oh, a little better today. The weather\'s nicer."'],
+        ['Rose', '"That\'s wonderful. Did you make it out to the garden? Last week you mentioned the roses were just starting to bloom."']
+      ]},
+      charlie: { name: 'Charlie', style: 'Friendly · Conversational', fill: '#8B5A2B', quotes: [
+        ['Charlie', '"Hey there, Frank! Charlie checking in. Did the Sox finally win one last night?"'],
+        ['Frank', '"Don\'t even get me started — bullpen blew it again."'],
+        ['Charlie', '"Ha! Some things never change. Tell me about that game-winner you saw back in \'67."']
+      ]},
+      mae:     { name: 'Mae',     style: 'Calm · Professional',     fill: '#0A6E50', quotes: [
+        ['Mae', '"Good morning, Eleanor. Just a quick check — did you take your morning medication?"'],
+        ['Eleanor', '"Yes, with breakfast. Thank you for asking."'],
+        ['Mae', '"Wonderful. Any aches or anything new I should pass along to your daughter today?"']
+      ]},
+      lena:    { name: 'Lena',    style: 'Bright · Energetic',      fill: '#4E3E71', quotes: [
+        ['Lena', '"Heyyy Dorothy! Tell me you watched Jeopardy last night — that final round was wild."'],
+        ['Dorothy', '"I got it! The Mongolian one!"'],
+        ['Lena', '"Stop it. You are sharper than half my friends. Can we talk about your bridge club next?"']
+      ]},
+    };
+    const AV_BG = { rose: 'linear-gradient(135deg,#FFD8DD,#F9A6B4)', charlie: 'linear-gradient(135deg,#FFE3B8,#F5B97A)', mae: 'linear-gradient(135deg,#C8F2DF,#7ED5B1)', lena: 'linear-gradient(135deg,#E4D5FF,#B69CF0)' };
+
+    const player = document.getElementById('demoPlayer');
+    const playBtn = document.getElementById('dpPlay');
+    const playIcon = document.getElementById('dpPlayIcon');
+    const cur = document.getElementById('dpCur');
+    const dur = document.getElementById('dpDur');
+    const nm = document.getElementById('dpName');
+    const stl = document.getElementById('dpStyle');
+    const av = document.getElementById('dpAv');
+    const quotesEl = document.getElementById('dpQuotes');
+
+    // Pull face SVG markup from each persona card so the player avatar matches
+    const FACES = {};
+    ['rose','charlie','mae','lena'].forEach(k => {
+      const src = document.querySelector('.persona.' + k + ' .face');
+      FACES[k] = src ? src.outerHTML : '';
+    });
+
+    let active = 'rose';
+    let playing = false;
+    let t = 0;
+    const TOTAL = 42; // seconds total
+    let timer = null;
+    let last = 0;
+
+    function fmt(s) {
+      const m = Math.floor(s / 60), r = Math.floor(s % 60);
+      return m + ':' + String(r).padStart(2, '0');
+    }
+
+    function renderProgress() {
+      const pct = t / TOTAL;
+      const lit = Math.round(pct * N);
+      [...wave.children].forEach((s, i) => {
+        s.classList.toggle('played', i < lit);
+      });
+      cur.textContent = fmt(t);
+      dur.textContent = fmt(TOTAL);
+      // active quote (3 quotes, evenly distributed)
+      const q = Math.min(2, Math.floor(pct * 3));
+      [...quotesEl.children].forEach((el, i) => el.classList.toggle('active', i === q));
+    }
+
+    function setVoice(key) {
+      active = key;
+      const v = VOICES[key];
+      nm.textContent = v.name;
+      stl.textContent = v.style;
+      av.className = 'av ' + key;
+      av.innerHTML = FACES[key] || '';
+      // populate quotes
+      quotesEl.innerHTML = v.quotes.map(([w, q], i) =>
+        `<div class="demo-quote${i === 0 ? ' active' : ''}"><span class="who">${w}</span>${q}</div>`
+      ).join('');
+      document.querySelectorAll('.dp-voice').forEach(b => b.classList.toggle('active', b.dataset.voice === key));
+      t = 0;
+      renderProgress();
+    }
+
+    function tick() {
+      if (!playing) return;
+      const now = Date.now();
+      const dt = (now - last) / 1000;
+      last = now;
+      t += dt;
+      if (t >= TOTAL) { t = 0; pause(); return; }
+      renderProgress();
+    }
+
+    function play() {
+      playing = true;
+      player.classList.add('playing');
+      playIcon.outerHTML = '<i data-lucide="pause" id="dpPlayIcon"></i>';
+      if (window.lucide) lucide.createIcons();
+      last = Date.now();
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, 50);
+    }
+    function pause() {
+      playing = false;
+      player.classList.remove('playing');
+      const icon = document.getElementById('dpPlayIcon');
+      if (icon) icon.outerHTML = '<i data-lucide="play" id="dpPlayIcon"></i>';
+      if (window.lucide) lucide.createIcons();
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    playBtn.addEventListener('click', () => playing ? pause() : play());
+    document.querySelectorAll('.dp-voice').forEach(b => {
+      b.addEventListener('click', () => { pause(); setVoice(b.dataset.voice); });
+    });
+
+    setVoice(active);
+  })();
+
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 20);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade').forEach(el => io.observe(el));
+
+  function darken(hex, amt=-0.15) {
+    const c = hex.replace('#',''); const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+    const d=(x)=>Math.max(0,Math.min(255,Math.round(x*(1+amt))));
+    return `#${[d(r),d(g),d(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}`;
+  }
+  function lighten(hex, amt=0.7) {
+    const c = hex.replace('#',''); const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+    const l=(x)=>Math.max(0,Math.min(255,Math.round(x + (255-x)*amt)));
+    return `#${[l(r),l(g),l(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}`;
+  }
+
+  function applyTweaks(t) {
+    const primary = t.primary || TWEAK_DEFAULTS.primary;
+    const accent  = t.accent  || TWEAK_DEFAULTS.accent;
+    const root = document.documentElement.style;
+    root.setProperty('--primary',     primary);
+    root.setProperty('--primary-500', primary);
+    root.setProperty('--primary-600', darken(primary, -0.15));
+    root.setProperty('--primary-700', darken(primary, -0.3));
+    root.setProperty('--primary-800', darken(primary, -0.5));
+    root.setProperty('--primary-900', darken(primary, -0.65));
+    root.setProperty('--primary-400', lighten(primary, 0.25));
+    root.setProperty('--primary-300', lighten(primary, 0.45));
+    root.setProperty('--primary-200', lighten(primary, 0.62));
+    root.setProperty('--primary-100', lighten(primary, 0.78));
+    root.setProperty('--primary-50',  lighten(primary, 0.88));
+
+    root.setProperty('--tertiary',     accent);
+    root.setProperty('--tertiary-200', accent);
+    root.setProperty('--tertiary-300', darken(accent, -0.1));
+    root.setProperty('--tertiary-100', lighten(accent, 0.5));
+    root.setProperty('--tertiary-50',  lighten(accent, 0.72));
+
+    if (t.heroPhoto) {
+      const img = document.getElementById('heroImg');
+      if (img) img.src = t.heroPhoto;
+    }
+
+    document.querySelectorAll('#swPrimary .tw-sw').forEach(b => b.classList.toggle('active', b.dataset.color.toLowerCase() === primary.toLowerCase()));
+    document.querySelectorAll('#swAccent  .tw-sw').forEach(b => b.classList.toggle('active', b.dataset.color.toLowerCase() === accent.toLowerCase()));
+    const sel = document.getElementById('twPhoto');
+    if (sel) sel.value = t.heroPhoto || TWEAK_DEFAULTS.heroPhoto;
+  }
+
+  const state = { ...TWEAK_DEFAULTS };
+  applyTweaks(state);
+
+  function persist(edits) {
+    Object.assign(state, edits);
+    applyTweaks(state);
+    try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*'); } catch(e){}
+  }
+
+  document.querySelectorAll('#swPrimary .tw-sw').forEach(b => b.addEventListener('click', () => persist({ primary: b.dataset.color })));
+  document.querySelectorAll('#swAccent  .tw-sw').forEach(b => b.addEventListener('click', () => persist({ accent: b.dataset.color })));
+  document.getElementById('twPhoto').addEventListener('change', (e) => persist({ heroPhoto: e.target.value }));
+
+  const panel = document.getElementById('twPanel');
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === '__activate_edit_mode') panel.classList.add('on');
+    if (d.type === '__deactivate_edit_mode') panel.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e){}
+</script>
+
+</body>
+</html>

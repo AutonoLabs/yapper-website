@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>What we learned after 10,000 phone calls with people over 70 — Yapper Insights</title>
+<link rel="icon" href="assets/yapper-logo.png" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html { font-size: 17px; }
+  body {
+    margin: 0; overflow-x: hidden; background: var(--neutral-50);
+    color: var(--neutral-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+  @media (min-width: 960px) { .wrap { padding: 0 56px; } }
+
+  /* ---------------- NAV ---------------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    height: 72px; display: flex; align-items: center;
+    background: rgba(250,250,251,.88);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-sans); font-weight: 800; font-size: 20px;
+    letter-spacing: -0.03em; color: var(--neutral-900);
+  }
+  .brand .mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--neutral-900); color: var(--tertiary-200);
+    display: grid; place-items: center;
+  }
+  .brand .mark svg { width: 19px; height: 19px; stroke-width: 2; }
+  .nav-links { display: none; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-label); font-size: 15px; font-weight: 500;
+    color: var(--neutral-700);
+  }
+  .nav-links a:hover { color: var(--primary-700); }
+  .nav-links a.active { color: var(--primary-700); font-weight: 600; }
+  @media (min-width: 960px) { .nav-links { display: flex; } }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 48px; padding: 0 22px; border-radius: 12px;
+    background: var(--neutral-900); color: white;
+    font-family: var(--font-sans); font-weight: 600; font-size: 15px;
+  }
+  .btn-primary:hover { background: var(--primary-700); }
+
+  /* ---------------- BREADCRUMB ---------------- */
+  .crumb {
+    padding: 28px 0 0;
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+  }
+  .crumb a { color: var(--neutral-600); }
+  .crumb a:hover { color: var(--primary-700); }
+  .crumb svg { width: 14px; height: 14px; color: var(--neutral-400); }
+
+  /* ---------------- ARTICLE HEADER ---------------- */
+  .hd { padding: 48px 0 56px; }
+  .hd .cat {
+    font-family: var(--font-label); font-size: 13px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+    display: inline-flex; gap: 10px; align-items: center;
+    margin-bottom: 32px;
+  }
+  .hd .cat::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+  .hd h1 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(40px, 5.5vw, 76px); line-height: 1.02;
+    letter-spacing: -0.028em; color: var(--neutral-900);
+    margin: 0 0 32px; text-wrap: balance;
+    max-width: 18ch;
+  }
+  .hd h1 em {
+    font-style: italic; font-weight: 500; color: var(--primary-700);
+    font-variation-settings: "opsz" 144;
+  }
+  .hd .deck {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(20px, 1.8vw, 26px); line-height: 1.45;
+    color: var(--neutral-700); max-width: 58ch;
+    margin: 0 0 40px;
+    text-wrap: pretty;
+  }
+  .hd .deck em { font-style: italic; color: var(--neutral-900); }
+  .byline {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding-top: 28px; border-top: 1px solid var(--border);
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+  }
+  .byline .avatar {
+    width: 44px; height: 44px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-300), var(--primary-500));
+    color: white; font-family: var(--font-sans); font-weight: 700; font-size: 14px;
+    display: grid; place-items: center;
+  }
+  .byline .by { color: var(--neutral-900); font-weight: 600; }
+  .byline .who { display: flex; flex-direction: column; gap: 2px; }
+  .byline .meta { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+  .byline .dot { width: 3px; height: 3px; border-radius: 999px; background: var(--neutral-400); }
+
+  /* ---------------- HERO IMAGE ---------------- */
+  .hero-img {
+    aspect-ratio: 21/9; overflow: hidden;
+    border-radius: 24px;
+    margin-bottom: 72px;
+  }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-img + .caption {
+    margin-top: -56px; margin-bottom: 72px;
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+    max-width: 72ch; padding-left: 4px;
+  }
+
+  /* ---------------- ARTICLE BODY ---------------- */
+  .article {
+    max-width: 720px; margin: 0 auto;
+    padding-bottom: 96px;
+  }
+  .article p, .article ul, .article ol {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 20px; line-height: 1.7;
+    color: var(--neutral-800);
+    margin: 0 0 28px;
+    font-variation-settings: "opsz" 48;
+    text-wrap: pretty;
+  }
+  .article p a {
+    color: var(--primary-700); border-bottom: 1px solid var(--primary-300);
+    padding-bottom: 1px;
+  }
+  .article p a:hover { border-bottom-color: var(--primary-700); }
+  .article p strong { color: var(--neutral-900); font-weight: 600; }
+  .article p em { color: var(--neutral-900); }
+
+  .article p.drop::first-letter {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 5.8em; line-height: 0.88;
+    float: left; padding: 8px 14px 0 0;
+    color: var(--primary-700);
+    font-variation-settings: "opsz" 144;
+  }
+
+  .article h2 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(28px, 2.6vw, 36px); line-height: 1.15;
+    letter-spacing: -0.02em; color: var(--neutral-900);
+    margin: 64px 0 24px; text-wrap: balance;
+  }
+  .article h2 em { font-style: italic; font-weight: 500; color: var(--primary-700); }
+  .article h2 .num {
+    display: block;
+    font-family: var(--font-label); font-size: 13px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+    margin-bottom: 14px;
+  }
+
+  .article h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 24px; line-height: 1.25;
+    letter-spacing: -0.015em; color: var(--neutral-900);
+    margin: 40px 0 16px;
+  }
+
+  .article ul { padding-left: 0; list-style: none; }
+  .article ul li {
+    position: relative; padding-left: 28px; margin-bottom: 14px;
+  }
+  .article ul li::before {
+    content: ""; position: absolute; left: 0; top: 14px;
+    width: 14px; height: 2px; background: var(--primary-700);
+  }
+
+  /* ---------------- PULL QUOTE ---------------- */
+  .pullquote {
+    position: relative;
+    margin: 72px -60px;
+    padding: 0 60px;
+    font-family: 'Fraunces', serif; font-weight: 400; font-style: italic;
+    font-size: clamp(28px, 3vw, 38px); line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--neutral-900);
+    text-wrap: balance;
+    font-variation-settings: "opsz" 144;
+  }
+  @media (max-width: 820px) { .pullquote { margin: 56px 0; padding: 0; } }
+  .pullquote::before {
+    content: ""; position: absolute; left: 0; top: 10px;
+    width: 3px; height: calc(100% - 20px);
+    background: var(--primary-700);
+  }
+  @media (max-width: 820px) { .pullquote::before { left: 0; } }
+  .pullquote em { color: var(--primary-700); }
+  .pullquote .attr {
+    display: block; margin-top: 20px;
+    font-family: var(--font-label); font-size: 13px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    font-style: normal;
+    color: var(--neutral-600);
+  }
+
+  /* ---------------- STAT ROW ---------------- */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin: 56px -20px;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .stat { padding: 0 24px; border-left: 1px solid var(--border); }
+  .stat:first-child { border-left: none; }
+  .stat .n {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(44px, 5vw, 64px); line-height: 1;
+    letter-spacing: -0.03em; color: var(--primary-700);
+    font-variation-settings: "opsz" 144;
+    margin-bottom: 10px;
+  }
+  .stat .l {
+    font-family: var(--font-sans); font-size: 14px; line-height: 1.4;
+    color: var(--neutral-700);
+  }
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr; }
+    .stat { border-left: none; border-top: 1px solid var(--border); padding: 20px 0; }
+    .stat:first-child { border-top: none; padding-top: 0; }
+  }
+
+  /* ---------------- CALLOUT / FIELD NOTE ---------------- */
+  .note {
+    background: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: 20px;
+    padding: 36px 40px;
+    margin: 56px 0;
+    position: relative;
+  }
+  .note .lab {
+    font-family: var(--font-label); font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .note .lab svg { width: 14px; height: 14px; }
+  .note p {
+    font-family: 'Fraunces', serif; font-size: 18px; line-height: 1.55;
+    color: var(--neutral-800); margin: 0;
+  }
+
+  /* ---------------- END MARK ---------------- */
+  .endmark {
+    margin: 72px 0 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .endmark .mk {
+    width: 16px; height: 16px;
+    background: var(--primary-700);
+    transform: rotate(45deg);
+  }
+  .endmark .tx {
+    font-family: var(--font-label); font-size: 13px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--neutral-600);
+  }
+
+  /* ---------------- AUTHOR BIO ---------------- */
+  .bio {
+    display: flex; gap: 24px; align-items: flex-start;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .bio .av {
+    width: 72px; height: 72px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-300), var(--primary-500));
+    color: white; font-family: var(--font-sans); font-weight: 700; font-size: 22px;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .bio .nm {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px;
+    color: var(--neutral-900); margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .bio .ti {
+    font-family: var(--font-label); font-size: 13px; font-weight: 600;
+    letter-spacing: .08em; color: var(--primary-700);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .bio .bd {
+    font-family: var(--font-sans); font-size: 16px; line-height: 1.6;
+    color: var(--neutral-700); max-width: 62ch;
+  }
+
+  /* ---------------- NEXT UP ---------------- */
+  .next { padding: 72px 0 96px; }
+  .next .hd-row {
+    display: flex; align-items: end; justify-content: space-between;
+    margin-bottom: 40px; gap: 24px; flex-wrap: wrap;
+  }
+  .next h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(32px, 3vw, 44px); line-height: 1.1;
+    letter-spacing: -0.02em; color: var(--neutral-900);
+    margin: 0; text-wrap: balance;
+  }
+  .next h2 em { font-style: italic; color: var(--primary-700); }
+  .next-grid {
+    display: grid; grid-template-columns: 1fr; gap: 40px;
+  }
+  @media (min-width: 860px) { .next-grid { grid-template-columns: repeat(2, 1fr); } }
+  .next .card { display: flex; flex-direction: column; gap: 20px; transition: transform .4s ease; }
+  .next .card:hover { transform: translateY(-4px); }
+  .next .card .img { aspect-ratio: 16/10; border-radius: 16px; overflow: hidden; background: var(--neutral-200); }
+  .next .card .img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .next .card:hover .img img { transform: scale(1.04); }
+  .next .card .cat {
+    font-family: var(--font-label); font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+  }
+  .next .card h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; line-height: 1.2;
+    letter-spacing: -0.015em; color: var(--neutral-900);
+    margin: 10px 0 0; text-wrap: balance;
+  }
+  .next .card h3 em { font-style: italic; color: var(--primary-700); }
+
+  /* ---------------- FOOTER ---------------- */
+  .foot-end {
+    border-top: 1px solid var(--border);
+    padding: 40px 0 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+  }
+  .foot-end a { color: var(--neutral-600); }
+  .foot-end a:hover { color: var(--primary-700); }
+  .foot-end .links { display: flex; gap: 28px; flex-wrap: wrap; }
+
+  /* Reading progress bar */
+  .progress {
+    position: fixed; top: 0; left: 0; z-index: 100;
+    height: 3px; width: 0%;
+    background: var(--primary-700);
+    transition: width .1s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a href="Yapper Care v2.html" class="brand">
+      <span class="mark"><i data-lucide="flower-2"></i></span>
+      Yapper
+    </a>
+    <div class="nav-links">
+      <a href="Yapper Care v2.html#how-it-works">How it works</a>
+      <a href="Yapper Care v2.html#features">Features</a>
+      <a href="Yapper Care v2.html#voices">Voices</a>
+      <a href="Yapper Care v2.html#facilities">For facilities</a>
+      <a href="Insights.html" class="active">Insights</a>
+    </div>
+    <a class="btn-primary" href="Yapper Care v2.html#pricing">Try a free call</a>
+  </div>
+</nav>
+
+<!-- ============ BREADCRUMB ============ -->
+<div class="wrap">
+  <div class="crumb">
+    <a href="Insights.html">Insights</a>
+    <i data-lucide="chevron-right"></i>
+    <span>The Loneliness Epidemic</span>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="wrap hd">
+  <span class="cat">The Loneliness Epidemic · Vol. 01, No. 03</span>
+  <h1>What we learned after <em>10,000</em> phone calls with people over 70.</h1>
+  <p class="deck">
+    Most of what you read about senior loneliness is a statistic. We went looking for the <em>texture</em> — the moments just before a call ends, the stories people only tell the third time they're asked. A field report.
+  </p>
+  <div class="byline">
+    <div class="avatar">MR</div>
+    <div class="who">
+      <span><span class="by">Maya Rowan</span> &amp; the Yapper Care team</span>
+      <span>Edited by Ellie Dworkin</span>
+    </div>
+    <div class="meta">
+      <span>12 min read</span>
+      <span class="dot"></span>
+      <span>March 14, 2026</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO IMAGE ============ -->
+<div class="wrap">
+  <div class="hero-img">
+    <img src="assets/senior-patricia-bozan.jpg" alt="A senior woman sitting at a window, mid-conversation, captured at home.">
+  </div>
+  <div class="caption">
+    Patricia, 78, during her Thursday morning call. Tenafly, NJ · February 2026.
+  </div>
+</div>
+
+<!-- ============ ARTICLE ============ -->
+<article class="wrap article">
+
+  <p class="drop">The first thing we noticed is that people don't hang up. They say they're going to — "well, I should let you go" — and then they keep talking for another twelve minutes. We have thousands of call transcripts that end this way. It is, it turns out, a very particular kind of tell.</p>
+
+  <p>When we started Yapper Care, we thought we were building a tool to help <em>families</em> stay in touch with aging parents. Eighteen months and 10,000 calls later, we understand we were building something different: a small, repeatable experience of being known. This essay is about what those calls have taught us — and the three things we got most wrong going in.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="n">62%</div>
+      <div class="l">of callers over 75 mention a person no longer living within the first three minutes of a call.</div>
+    </div>
+    <div class="stat">
+      <div class="n">11.4<span style="font-size:.6em; color:var(--neutral-500)"> min</span></div>
+      <div class="l">median call length when the caller sets a 7-minute upper bound.</div>
+    </div>
+    <div class="stat">
+      <div class="n">4.2×</div>
+      <div class="l">more likely to talk about a specific memory after mentioning a meal they ate today.</div>
+    </div>
+  </div>
+
+  <h2><span class="num">Thing we got wrong · 01</span>We thought loneliness looked like <em>sadness.</em> It mostly looks like <em>efficiency.</em></h2>
+
+  <p>Early on, we tuned our callers to listen for sadness markers — long pauses, flat affect, the words "lonely" or "alone." We assumed people who were struggling would, in some form, say so. What we found instead is that the people most starved for company are the ones who answer questions fastest.</p>
+
+  <p>A typical exchange: <em>How was your morning, Joyce?</em> "Fine, thanks for asking." <em>Did you get outside?</em> "Yes, for a bit." <em>Anything on the calendar this week?</em> "Not really, I don't do much anymore." Three questions, three tidy answers, under nine seconds. If we ended the call there, we would have told ourselves she was doing well.</p>
+
+  <p>But when Joyce is asked an open-ended question — one with no correct answer and no polite off-ramp — the floodgates don't open; they <em>crack</em>. She'll mention her husband's workshop. The year she taught piano. A small regret about a sister in Ohio. None of this shows up in a mood-check. All of it shows up if you let the silence last four seconds longer than feels comfortable.</p>
+
+  <blockquote class="pullquote">
+    The people most starved for company are the ones who answer questions <em>fastest.</em> Efficiency, we came to understand, is a kind of self-protection.
+    <span class="attr">— From our February 2026 internal review</span>
+  </blockquote>
+
+  <p>Efficiency, we came to understand, is a kind of self-protection. If you don't expect anyone to really want to hear your answer, you keep your answers small. So now our callers are trained on a different metric: not <em>did they disclose something</em>, but <em>did they expand after the follow-up?</em> That second shoe dropping is the signal.</p>
+
+  <h2><span class="num">Thing we got wrong · 02</span>We optimized for <em>connection.</em> We should have optimized for <em>routine.</em></h2>
+
+  <p>In our first product, calls were on-demand. A family member would press a button, a call would go out, mom would pick up. We thought the flexibility would be a selling point. It turned out to be the opposite — the unpredictability made the calls feel like an interruption, even when they were welcomed.</p>
+
+  <p>The turning point was a woman in Vermont named Margaret. Her daughter Julie told us Margaret had started saying, unprompted, that her Thursdays were "for Rose" — Rose being the name we'd assigned to her caller. It wasn't the conversation itself that Margaret had built her week around. It was the knowing.</p>
+
+  <div class="note">
+    <div class="lab"><i data-lucide="bookmark"></i>A note from the field</div>
+    <p>Margaret kept a small notebook next to the phone. Each Thursday morning, before the call, she'd write down two or three things she wanted to remember to say. We only found this out because she mentioned the notebook on a call in week 14: <em>"I've got a list here, let me find my glasses."</em> The call wasn't the event. The preparation was.</p>
+  </div>
+
+  <p>So we made two changes. First, calls became scheduled by default — same day, same time, every week. Second, we stopped asking "is now a good time?" at the start of each call. If the caller has agreed to Thursday at 9am, Thursday at 9am <em>is</em> the good time. The question, we realized, was accidentally offering an exit.</p>
+
+  <p>Weekly call-completion rates went from 71% to 94% in the three months after we shipped this. But the number that mattered more was the one we couldn't easily chart: how often the caller mentioned, on their own, that they had been looking forward to it.</p>
+
+  <h2><span class="num">Thing we got wrong · 03</span>We thought the <em>family</em> was our customer. The <em>caller</em> was the customer all along.</h2>
+
+  <p>For the first year, every product decision optimized for the adult child paying the subscription — clear summaries, peace of mind, proof that the money was well spent. We built a parent-facing app. We built a family dashboard. We built a weekly digest.</p>
+
+  <p>What we neglected was the person on the other end of the phone. We treated her like the <em>product</em>, not the user. And because we did, our retention curves told a very specific story: the caller's kids would sign up, love the first three months, and then quietly churn around month five when the novelty wore off.</p>
+
+  <p>The reframe took an embarrassingly long time. Once we started asking <em>the caller</em> what she wanted Yapper to be — not what her family wanted it to <em>do</em> — the product started to feel different:</p>
+
+  <ul>
+    <li>She didn't want a "safety check." She wanted someone to talk to about the garden.</li>
+    <li>She didn't want transcripts sent to her children. She wanted the calls to feel private.</li>
+    <li>She didn't want surveys or mood-rating prompts. She wanted the caller to remember what she said last Thursday without having to re-explain.</li>
+  </ul>
+
+  <p>So we rebuilt the system around her. The family summary is now three sentences, stripped of verbatim content and editorial interpretation — facts only, and only the facts that matter for care. The caller's memory is rich and private. The questions are open. The pace is slow.</p>
+
+  <p>And — worth noting, because it surprised us too — retention went up on the family side, not down. It turns out that when the caller is genuinely looking forward to the calls, the family can feel it. The product sells itself from the inside out.</p>
+
+  <h2>What we're still figuring out.</h2>
+
+  <p>Ten thousand calls isn't a lot. It's enough to pattern-match, not enough to be sure. There are at least three questions we don't yet have good answers to: <em>How do you hand off a relationship when a caller's memory starts to slip?</em> <em>What's the right cadence for someone whose week is already full?</em> <em>How do you design for the hardest calls — the ones right after a death in the family?</em></p>
+
+  <p>We'll be writing more about each of these over the next few months. If you're a family member, a clinician, a chaplain, or someone working in long-term care and you have opinions — and you probably do — we'd love to hear from you. Our inbox is <a href="mailto:hello@yappercare.com">hello@yappercare.com</a>, and it's read by humans.</p>
+
+  <p>In the meantime, the next call is in eleven minutes, and Patricia is expecting it.</p>
+
+  <div class="endmark">
+    <div class="mk"></div>
+    <div class="tx">End of essay</div>
+  </div>
+
+  <!-- Author bio -->
+  <div class="bio">
+    <div class="av">MR</div>
+    <div>
+      <div class="nm">Maya Rowan</div>
+      <div class="ti">Head of Care Design, Yapper Care</div>
+      <div class="bd">Maya previously led caregiver research at a large health system in the Northeast and spent four years as a hospice chaplain. She writes about the design of attention — what it means to really listen to someone, and how to build products that don't get in the way of it.</div>
+    </div>
+  </div>
+
+</article>
+
+<!-- ============ NEXT UP ============ -->
+<section class="wrap next">
+  <div class="hd-row">
+    <h2>Keep <em>reading.</em></h2>
+    <a class="read-link" href="Insights.html" style="font-family:var(--font-label);font-size:15px;font-weight:600;color:var(--primary-700);display:inline-flex;gap:10px;align-items:center;border-bottom:1.5px solid var(--primary-700);padding-bottom:4px;">All insights <i data-lucide="arrow-right" style="width:16px;height:16px"></i></a>
+  </div>
+  <div class="next-grid">
+    <a class="card" href="Insights — sample post.html">
+      <div class="img"><img src="assets/senior-ageing-better.jpg" alt=""></div>
+      <div>
+        <span class="cat">For Families</span>
+        <h3>Six questions to ask your mom that aren't <em>"how are you?"</em></h3>
+      </div>
+    </a>
+    <a class="card" href="Insights — sample post.html">
+      <div class="img"><img src="assets/marquis-booth-modern.jpg" alt=""></div>
+      <div>
+        <span class="cat">For Facilities</span>
+        <h3>Why we built a literal <em>phone booth</em> at Marquis — and what we got wrong the first time.</h3>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-end">
+    <div>© 2026 Yapper Care. Made with care in Tenafly, NJ.</div>
+    <div class="links">
+      <a href="Yapper Care v2.html">Home</a>
+      <a href="Insights.html">Insights</a>
+      <a href="Yapper Care v2.html#pricing">Pricing</a>
+      <a href="#">Privacy</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  lucide.createIcons();
+
+  // Reading progress
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    progress.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  }, { passive: true });
+</script>
+
+</body>
+</html>

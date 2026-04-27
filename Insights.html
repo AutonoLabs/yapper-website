@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yapper Insights — Field notes on loneliness, aging, and connection.</title>
+<link rel="icon" href="assets/yapper-logo.png" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* ================================================================
+     EDITORIAL SYSTEM — Swiss Modernism 2.0 (UUPM Rule #67)
+     - Serif display (Fraunces) at large sizes, italic as editorial voice
+     - Grotesk body (Public Sans) at 18px for dwell-readability
+     - Strict 12-col grid with asymmetric layouts
+     - Colors: pulled from Yapper brand tokens (no new hues invented)
+     ================================================================ */
+  html { font-size: 17px; }
+  body {
+    margin: 0; overflow-x: hidden; background: var(--neutral-50);
+    color: var(--neutral-900);
+    font-family: var(--font-sans);
+  }
+  * { box-sizing: border-box; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+  @media (min-width: 960px) { .wrap { padding: 0 56px; } }
+
+  /* ---------------- NAV (matches v2 site) ---------------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    height: 72px; display: flex; align-items: center;
+    background: rgba(250,250,251,.88);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-sans); font-weight: 800; font-size: 20px;
+    letter-spacing: -0.03em; color: var(--neutral-900);
+  }
+  .brand .mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--neutral-900); color: var(--tertiary-200);
+    display: grid; place-items: center;
+  }
+  .brand .mark svg { width: 19px; height: 19px; stroke-width: 2; }
+  .nav-links { display: none; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-label); font-size: 15px; font-weight: 500;
+    color: var(--neutral-700);
+  }
+  .nav-links a:hover { color: var(--primary-700); }
+  .nav-links a.active { color: var(--primary-700); font-weight: 600; }
+  @media (min-width: 960px) { .nav-links { display: flex; } }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 48px; padding: 0 22px; border-radius: 12px;
+    background: var(--neutral-900); color: white;
+    font-family: var(--font-sans); font-weight: 600; font-size: 15px;
+  }
+  .btn-primary:hover { background: var(--primary-700); }
+
+  /* ---------------- MASTHEAD ---------------- */
+  .mast {
+    padding: 88px 0 72px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mast-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 48px; align-items: end;
+  }
+  @media (min-width: 960px) { .mast-grid { grid-template-columns: 7fr 4fr; gap: 80px; } }
+  .mast .kicker {
+    font-family: var(--font-label); font-size: 13px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-bottom: 28px;
+  }
+  .mast .kicker::before {
+    content: ""; width: 28px; height: 1px; background: currentColor;
+  }
+  .mast h1 {
+    font-family: 'Fraunces', 'Public Sans', serif;
+    font-weight: 400; font-style: normal;
+    font-size: clamp(52px, 7.2vw, 104px);
+    line-height: 0.96; letter-spacing: -0.035em;
+    color: var(--neutral-900); margin: 0;
+    text-wrap: balance;
+  }
+  .mast h1 em {
+    font-style: italic; font-weight: 500; color: var(--primary-700);
+    font-variation-settings: "opsz" 144;
+  }
+  .mast .sub {
+    font-size: 20px; line-height: 1.55;
+    color: var(--neutral-700);
+    max-width: 420px;
+  }
+  .mast .sub strong { color: var(--neutral-900); font-weight: 600; }
+
+  /* ---------------- FEATURED POST ---------------- */
+  .featured {
+    padding: 72px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .featured a {
+    display: grid; grid-template-columns: 1fr; gap: 40px;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .featured a { grid-template-columns: 6fr 5fr; gap: 72px; }
+  }
+  .featured .img {
+    position: relative; aspect-ratio: 5/4; overflow: hidden;
+    border-radius: 20px;
+  }
+  .featured .img img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .featured a:hover .img img { transform: scale(1.03); }
+  .featured .tag {
+    position: absolute; top: 20px; left: 20px;
+    background: var(--neutral-900); color: white;
+    font-family: var(--font-label); font-size: 12px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    padding: 8px 14px; border-radius: 999px;
+  }
+  .featured .meta-row {
+    display: flex; gap: 16px; align-items: center;
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+    margin-bottom: 20px;
+  }
+  .featured .meta-row .dot { width: 4px; height: 4px; border-radius: 999px; background: var(--neutral-400); }
+  .featured .cat {
+    font-family: var(--font-label); font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+  }
+  .featured h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(36px, 3.6vw, 52px); line-height: 1.08;
+    letter-spacing: -0.025em; color: var(--neutral-900);
+    margin: 0 0 20px; text-wrap: balance;
+  }
+  .featured h2 em {
+    font-style: italic; font-weight: 500; color: var(--primary-700);
+    font-variation-settings: "opsz" 144;
+  }
+  .featured p {
+    font-size: 19px; line-height: 1.55;
+    color: var(--neutral-700); margin: 0 0 32px;
+    max-width: 560px;
+  }
+  .read-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-label); font-size: 15px; font-weight: 600;
+    color: var(--primary-700);
+    padding-bottom: 4px; border-bottom: 1.5px solid var(--primary-700);
+    transition: gap .2s ease;
+  }
+  .read-link:hover { gap: 14px; }
+  .read-link svg { width: 16px; height: 16px; }
+
+  /* ---------------- FILTER BAR ---------------- */
+  .filters {
+    padding: 36px 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .filter-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    font-family: var(--font-label); font-size: 14px; font-weight: 500;
+    padding: 10px 18px; border-radius: 999px;
+    border: 1.5px solid var(--border);
+    color: var(--neutral-700); background: transparent;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .pill:hover { border-color: var(--neutral-400); }
+  .pill.active {
+    background: var(--neutral-900); color: white;
+    border-color: var(--neutral-900);
+  }
+  .count {
+    font-family: var(--font-label); font-size: 14px;
+    color: var(--neutral-600);
+  }
+
+  /* ---------------- GRID ---------------- */
+  .grid {
+    padding: 24px 0 96px;
+    display: grid; grid-template-columns: 1fr;
+    gap: 56px 40px;
+  }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .card {
+    display: flex; flex-direction: column; gap: 20px;
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card .img {
+    aspect-ratio: 4/3; overflow: hidden; border-radius: 16px;
+    background: var(--neutral-200);
+  }
+  .card .img img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .img img { transform: scale(1.04); }
+  .card .body { display: flex; flex-direction: column; gap: 14px; padding: 0 4px; }
+  .card .cat {
+    font-family: var(--font-label); font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--primary-700);
+  }
+  .card h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; line-height: 1.18;
+    letter-spacing: -0.015em; color: var(--neutral-900);
+    margin: 0; text-wrap: balance;
+  }
+  .card h3 em { font-style: italic; font-weight: 500; color: var(--primary-700); }
+  .card .excerpt {
+    font-size: 17px; line-height: 1.55;
+    color: var(--neutral-700); margin: 0;
+  }
+  .card .foot {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-label); font-size: 13px; color: var(--neutral-600);
+    padding-top: 6px;
+  }
+  .card .foot .dot { width: 3px; height: 3px; border-radius: 999px; background: var(--neutral-400); }
+  .card .foot .avatar {
+    width: 28px; height: 28px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-200), var(--primary-400));
+    color: white; font-family: var(--font-sans); font-weight: 700; font-size: 11px;
+    display: grid; place-items: center;
+    letter-spacing: 0;
+  }
+
+  /* ---------------- NEWSLETTER BLOCK ---------------- */
+  .news {
+    background: var(--neutral-900); color: white;
+    border-radius: 28px;
+    padding: 72px 56px;
+    display: grid; grid-template-columns: 1fr;
+    gap: 40px; align-items: center;
+    margin-bottom: 96px;
+    position: relative; overflow: hidden;
+  }
+  @media (min-width: 900px) { .news { grid-template-columns: 6fr 5fr; gap: 80px; padding: 88px 80px; } }
+  .news::before {
+    content: ""; position: absolute; right: -120px; top: -120px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(152,255,217,.22), transparent 70%);
+    pointer-events: none;
+  }
+  .news .kicker {
+    font-family: var(--font-label); font-size: 13px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--tertiary-200);
+    display: inline-flex; gap: 10px; align-items: center;
+    margin-bottom: 24px;
+  }
+  .news .kicker::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+  .news h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(36px, 3.4vw, 48px); line-height: 1.05;
+    letter-spacing: -0.025em; margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .news h2 em { font-style: italic; color: var(--tertiary-200); font-weight: 500; }
+  .news p {
+    font-size: 18px; line-height: 1.55;
+    color: rgba(255,255,255,.75); margin: 0; max-width: 460px;
+  }
+  .news form { display: flex; gap: 12px; position: relative; z-index: 2; }
+  .news input {
+    flex: 1; height: 58px; padding: 0 22px;
+    border-radius: 14px; border: 1.5px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.06); color: white;
+    font-family: var(--font-sans); font-size: 16px;
+  }
+  .news input::placeholder { color: rgba(255,255,255,.5); }
+  .news input:focus { outline: none; border-color: var(--tertiary-200); }
+  .news button {
+    height: 58px; padding: 0 28px; border-radius: 14px;
+    background: var(--tertiary-200); color: var(--tertiary-900);
+    font-family: var(--font-sans); font-weight: 700; font-size: 16px;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .news button:hover { background: var(--tertiary-300); }
+  .news button svg { width: 16px; height: 16px; }
+
+  /* ---------------- FOOTER ---------------- */
+  .foot-end {
+    border-top: 1px solid var(--border);
+    padding: 40px 0 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+    font-family: var(--font-label); font-size: 14px; color: var(--neutral-600);
+  }
+  .foot-end a { color: var(--neutral-600); }
+  .foot-end a:hover { color: var(--primary-700); }
+  .foot-end .links { display: flex; gap: 28px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a href="Yapper Care v2.html" class="brand" aria-label="Yapper home">
+      <span class="mark"><i data-lucide="flower-2"></i></span>
+      Yapper
+    </a>
+    <div class="nav-links">
+      <a href="Yapper Care v2.html#how-it-works">How it works</a>
+      <a href="Yapper Care v2.html#features">Features</a>
+      <a href="Yapper Care v2.html#voices">Voices</a>
+      <a href="Yapper Care v2.html#facilities">For facilities</a>
+      <a href="Insights.html" class="active">Insights</a>
+    </div>
+    <a class="btn-primary" href="Yapper Care v2.html#pricing">Try a free call</a>
+  </div>
+</nav>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="mast">
+  <div class="wrap mast-grid">
+    <div>
+      <span class="kicker">Yapper Insights · Vol. 01</span>
+      <h1>Field notes on <em>loneliness,</em> aging, and the quiet work of keeping someone company.</h1>
+    </div>
+    <div class="sub">
+      A slow magazine for families, caregivers, and operators who look after someone they love. <strong>Plain writing, real research, and the occasional small story</strong> — published when we have something worth saying.
+    </div>
+  </div>
+</header>
+
+<!-- ============ FEATURED POST ============ -->
+<section class="featured">
+  <div class="wrap">
+    <a href="Insights — sample post.html">
+      <div class="img">
+        <span class="tag">Featured</span>
+        <img src="assets/senior-patricia-bozan.jpg" alt="A senior woman sitting at a window, mid-conversation">
+      </div>
+      <div>
+        <div class="meta-row">
+          <span class="cat">The Loneliness Epidemic</span>
+          <span class="dot"></span>
+          <span>12 min read</span>
+          <span class="dot"></span>
+          <span>March 14, 2026</span>
+        </div>
+        <h2>What we learned after <em>10,000</em> phone calls with people over 70.</h2>
+        <p>Most of what you read about senior loneliness is a statistic. We went looking for the texture — the moments just before a call ends, the stories people only tell the third time they're asked. Here's what we found.</p>
+        <span class="read-link">Read the essay <i data-lucide="arrow-right"></i></span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ============ FILTER BAR ============ -->
+<section class="wrap">
+  <div class="filters">
+    <div class="filter-pills">
+      <button class="pill active" data-filter="all">All writing</button>
+      <button class="pill" data-filter="research">Research</button>
+      <button class="pill" data-filter="field">Field notes</button>
+      <button class="pill" data-filter="family">For families</button>
+      <button class="pill" data-filter="facilities">For facilities</button>
+      <button class="pill" data-filter="product">Product</button>
+    </div>
+    <div class="count" id="count">9 pieces</div>
+  </div>
+</section>
+
+<!-- ============ GRID ============ -->
+<section class="wrap">
+  <div class="grid" id="grid">
+
+    <a class="card" href="Insights — sample post.html" data-cat="research">
+      <div class="img"><img src="assets/senior-rotary-phone.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">Research</span>
+        <h3>The <em>15-cigarette</em> number: what the loneliness-mortality research actually says.</h3>
+        <p class="excerpt">The headline statistic has been repeated so often it feels mythic. We tracked down the meta-analysis, and the real story is stranger than the soundbite.</p>
+        <div class="foot">
+          <span class="avatar">ED</span>
+          <span>Ellie Dworkin</span>
+          <span class="dot"></span>
+          <span>9 min · Mar 8</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="family">
+      <div class="img"><img src="assets/senior-ageing-better.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">For Families</span>
+        <h3>Six questions to ask your mom that aren't <em>"how are you?"</em></h3>
+        <p class="excerpt">The standard opener gets a three-word answer. Here are six better ones — and the kind of conversations they tend to open up.</p>
+        <div class="foot">
+          <span class="avatar">MR</span>
+          <span>Maya Rowan</span>
+          <span class="dot"></span>
+          <span>6 min · Feb 28</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="facilities">
+      <div class="img"><img src="assets/marquis-booth-modern.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">For Facilities</span>
+        <h3>Why we built a literal <em>phone booth</em> at Marquis — and what we got wrong the first time.</h3>
+        <p class="excerpt">A hallway, a donated bench, and three iterations later, we had a piece of furniture residents with memory loss actually use.</p>
+        <div class="foot">
+          <span class="avatar">CH</span>
+          <span>Chung Park</span>
+          <span class="dot"></span>
+          <span>11 min · Feb 19</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="field">
+      <div class="img"><img src="assets/senior-beanie-smartphone.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">Field Notes</span>
+        <h3>Margaret, her white fence, and a <em>conversation</em> that lasted four months.</h3>
+        <p class="excerpt">An 82-year-old in Vermont taught us more about memory-aware dialogue than six months of transcripts ever could. A small portrait.</p>
+        <div class="foot">
+          <span class="avatar">RT</span>
+          <span>Rose Tanaka</span>
+          <span class="dot"></span>
+          <span>7 min · Feb 12</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="product">
+      <div class="img"><img src="assets/senior-mart-production.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">Product</span>
+        <h3>Voice design for people who grew up with <em>rotary phones.</em></h3>
+        <p class="excerpt">How we tuned cadence, pauses, and turn-taking to feel like a thoughtful friend rather than an assistant waiting to be asked for the weather.</p>
+        <div class="foot">
+          <span class="avatar">LS</span>
+          <span>Leo Santos</span>
+          <span class="dot"></span>
+          <span>10 min · Feb 2</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="research">
+      <div class="img"><img src="assets/senior-moe-magners.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">Research</span>
+        <h3>The difference between <em>alone</em> and lonely — and why it matters for how we build.</h3>
+        <p class="excerpt">Solitude is a need. Loneliness is a wound. Conflating them is how well-meaning products end up intrusive.</p>
+        <div class="foot">
+          <span class="avatar">ED</span>
+          <span>Ellie Dworkin</span>
+          <span class="dot"></span>
+          <span>8 min · Jan 24</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="family">
+      <div class="img"><img src="assets/senior-video-call.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">For Families</span>
+        <h3>What a good daily summary looks like (and what it <em>shouldn't</em> contain).</h3>
+        <p class="excerpt">We send a short note to family members after every call. Here's the editorial rubric we use — and the three temptations we try hardest to avoid.</p>
+        <div class="foot">
+          <span class="avatar">MR</span>
+          <span>Maya Rowan</span>
+          <span class="dot"></span>
+          <span>5 min · Jan 17</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="facilities">
+      <div class="img"><img src="assets/facilities-hero.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">For Facilities</span>
+        <h3>Staffing ratios are a <em>floor,</em> not a goal: the math of meaningful contact.</h3>
+        <p class="excerpt">Even at excellent long-term care communities, residents get &lt; 4 minutes of 1:1 conversation a day. We did the arithmetic, and then we did something about it.</p>
+        <div class="foot">
+          <span class="avatar">CH</span>
+          <span>Chung Park</span>
+          <span class="dot"></span>
+          <span>9 min · Jan 9</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="Insights — sample post.html" data-cat="field">
+      <div class="img"><img src="assets/marquis-booth-classic.jpg" alt=""></div>
+      <div class="body">
+        <span class="cat">Field Notes</span>
+        <h3>The day the <em>phone booth</em> replaced the nursing station as the busiest spot on the floor.</h3>
+        <p class="excerpt">A short note from a Thursday afternoon in December. On routines, nostalgia, and why the best fix is sometimes the obvious one done well.</p>
+        <div class="foot">
+          <span class="avatar">RT</span>
+          <span>Rose Tanaka</span>
+          <span class="dot"></span>
+          <span>4 min · Dec 18</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<section class="wrap">
+  <div class="news">
+    <div>
+      <span class="kicker">The Monthly</span>
+      <h2>One slow letter, <em>first Sunday</em> of the month.</h2>
+      <p>No life hacks, no pop-ups. Just a couple of essays, a quote worth keeping, and a small something we're working on. Unsubscribing is one click.</p>
+    </div>
+    <form onsubmit="event.preventDefault(); this.querySelector('button').innerHTML = 'Thank you <i data-lucide=&quot;check&quot;></i>'; lucide.createIcons();">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit">Subscribe <i data-lucide="arrow-right"></i></button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-end">
+    <div>© 2026 Yapper Care. Made with care in Tenafly, NJ.</div>
+    <div class="links">
+      <a href="Yapper Care v2.html">Home</a>
+      <a href="Yapper Care v2.html#how-it-works">How it works</a>
+      <a href="Yapper Care v2.html#pricing">Pricing</a>
+      <a href="#">Privacy</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  lucide.createIcons();
+
+  // Filter pills
+  const grid = document.getElementById('grid');
+  const count = document.getElementById('count');
+  const cards = [...grid.querySelectorAll('.card')];
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      const f = p.dataset.filter;
+      let shown = 0;
+      cards.forEach(c => {
+        const show = f === 'all' || c.dataset.cat === f;
+        c.style.display = show ? '' : 'none';
+        if (show) shown++;
+      });
+      count.textContent = `${shown} piece${shown === 1 ? '' : 's'}`;
+    });
+  });
+</script>
+
+</body>
+</html>
