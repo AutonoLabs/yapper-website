@@ -127,6 +127,30 @@
   .btn.ghost:hover { background: var(--neutral-200); }
   .btn.xl { height: 64px; font-size: 18px; padding: 0 34px; border-radius: 14px; }
   .btn.lg { height: 58px; font-size: 17px; padding: 0 28px; }
+  @media (max-width: 720px) {
+    .btn.xl {
+      height: 56px;
+      font-size: 16px;
+      padding: 0 20px;
+      white-space: normal;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .btn.lg {
+      height: 54px;
+      font-size: 15px;
+      padding: 0 18px;
+      white-space: normal;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .nav-cta .btn {
+      height: 42px;
+      font-size: 14px;
+      padding: 0 12px;
+      border-radius: 10px;
+    }
+  }
 
   /* =========================================================
      HERO
@@ -162,6 +186,15 @@
   }
   .hero .lede { margin-top: 24px; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  @media (max-width: 720px) {
+    .hero-cta {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 100%;
+      gap: 10px;
+    }
+    .hero-cta .btn { width: 100%; }
+  }
   .hero-meta {
     display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap;
     font-family: var(--font-label); font-size: 13px; color: var(--neutral-500);
@@ -1052,6 +1085,16 @@
     padding-left: 14px; border-left: 1px solid rgba(255,255,255,.25);
   }
   .fac-price strong { color: white; font-weight: 700; }
+  @media (max-width: 720px) {
+    .fac-cta {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 100%;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .fac-cta .btn.primary { width: 100%; }
+  }
 
   /* Dashboard mock */
   .dash {
@@ -1146,6 +1189,15 @@
   .final .fine {
     position: relative; margin-top: 24px;
     font-family: var(--font-label); font-size: 13px; color: rgba(255,255,255,.5);
+  }
+  @media (max-width: 720px) {
+    .final .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 100%;
+      gap: 10px;
+    }
+    .final .row .btn { width: 100%; }
   }
 
   /* =========================================================
