@@ -2481,38 +2481,41 @@
       });
     });
 
-    // Consumer CTAs — show email modal
-    const modal   = document.getElementById('signup-modal');
-    const form    = document.getElementById('suForm');
-    const emailEl = document.getElementById('suEmail');
-    const errEl   = document.getElementById('suErr');
-    const submitEl= document.getElementById('suSubmit');
+    // Consumer CTAs — show email modal (elements resolved lazily; modal lives after this script)
     let pendingHref = 'https://go.yapper.care';
+
+    function modal()    { return document.getElementById('signup-modal'); }
+    function form()     { return document.getElementById('suForm'); }
+    function emailEl()  { return document.getElementById('suEmail'); }
+    function errEl()    { return document.getElementById('suErr'); }
+    function submitEl() { return document.getElementById('suSubmit'); }
 
     document.querySelectorAll('.yapper-cta').forEach(el => {
       el.addEventListener('click', e => {
         e.preventDefault();
         pendingHref = el.href || 'https://go.yapper.care';
-        errEl.hidden = true;
-        emailEl.value = '';
-        modal.hidden = false;
+        errEl().hidden = true;
+        emailEl().value = '';
+        modal().hidden = false;
         if (window.lucide) lucide.createIcons();
-        emailEl.focus();
+        emailEl().focus();
       });
     });
 
-    document.getElementById('suClose').addEventListener('click', () => { modal.hidden = true; });
-    modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+    document.addEventListener('click', e => {
+      if (e.target.id === 'suClose' || e.target === modal()) modal().hidden = true;
+    });
 
-    form.addEventListener('submit', async e => {
+    document.addEventListener('submit', async e => {
+      if (e.target !== form()) return;
       e.preventDefault();
-      const email = emailEl.value.trim();
+      const email = emailEl().value.trim();
       if (!email) return;
 
-      submitEl.disabled = true;
-      submitEl.textContent = 'One moment…';
-      errEl.hidden = true;
-      modal.hidden = true;
+      submitEl().disabled = true;
+      submitEl().textContent = 'One moment…';
+      errEl().hidden = true;
+      modal().hidden = true;
 
       const params = utmParams();
       try {
@@ -2520,7 +2523,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email,
+            email: email,
             type: 'consumer',
             source: params.utm_source || (document.referrer ? new URL(document.referrer).hostname : 'direct'),
             referrerUrl: document.referrer || null,
