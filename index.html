@@ -1258,6 +1258,18 @@
   /* entrance */
   .fade { opacity: 0; transform: translateY(16px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
   .fade.in { opacity: 1; transform: none; }
+
+  /* Signup modal */
+  .su-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:9999;padding:1rem}
+  .su-box{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:420px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+  .su-close{position:absolute;top:.75rem;right:.75rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--neutral-500);line-height:1;padding:0 .25rem}
+  .su-headline{font-weight:700;font-size:1.1rem;margin:0 0 1.25rem;padding-right:1.5rem}
+  #suForm{display:grid;gap:.75rem}
+  #suEmail,#suFacility{border:1.5px solid var(--neutral-200);border-radius:10px;padding:.7rem 1rem;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit}
+  #suEmail:focus,#suFacility:focus{outline:none;border-color:var(--primary-400)}
+  #suSubmit{width:100%}
+  .su-err{color:#d32f2f;font-size:.85rem;margin:.25rem 0 0}
+  .su-fine{font-size:.75rem;color:var(--neutral-400);margin:.75rem 0 0;text-align:center}
 </style>
 </head>
 <body>
@@ -1316,7 +1328,7 @@
         Yapper calls for a real conversation, then sends you a gentle note about how it went.
       </p>
       <div class="hero-cta">
-        <a class="btn primary xl" href="https://go.yapper.care">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a class="btn primary xl yapper-cta" data-type="consumer" href="https://go.yapper.care">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
         <a class="btn outlined xl" href="#how-it-works"><i data-lucide="play-circle"></i> See how it works</a>
       </div>
       <div class="hero-meta">
@@ -1975,7 +1987,7 @@
           
         </ul>
 
-        <a class="btn primary xl" style="width:100%" href="https://go.yapper.care">Start free trial <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a class="btn primary xl yapper-cta" data-type="consumer" style="width:100%" href="https://go.yapper.care">Start free trial <i data-lucide="arrow-right" class="arrow"></i></a>
 
         <div class="p-privacy">
           <i data-lucide="shield-check" style="width:14px;height:14px;"></i>
@@ -2017,7 +2029,7 @@
           </ul>
 
           <div class="fac-cta">
-            <a href="#" class="btn primary lg">Book a facility demo <i data-lucide="arrow-right" class="arrow"></i></a>
+            <a href="#" class="btn primary lg yapper-facility-cta">Book a facility demo <i data-lucide="arrow-right" class="arrow"></i></a>
             <span class="fac-price">From <strong>$10</strong>/resident/month</span>
           </div>
         </div>
@@ -2101,7 +2113,7 @@
       <h2>Give them a steady call they can count on <em>every day.</em></h2>
       <p>Set up takes about five minutes. Your family keeps control, and your parent gets consistent connection.</p>
       <div class="row">
-        <a href="https://go.yapper.care" class="btn primary xl">Get started free <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a href="https://go.yapper.care" class="btn primary xl yapper-cta" data-type="consumer">Get started free <i data-lucide="arrow-right" class="arrow"></i></a>
         <a href="#how-it-works" class="btn ghost xl">See how it works</a>
       </div>
       <div class="fine">7-day free trial · No credit card needed</div>
@@ -2442,7 +2454,102 @@
     if (d.type === '__deactivate_edit_mode') panel.classList.remove('on');
   });
   try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e){}
+
+  // ── Signup modal ──────────────────────────────────────────────
+  (function () {
+    const CAL_URL = 'https://cal.com/yapper-care-icdxao/facility-demo';
+
+    function utmParams() {
+      const p = new URLSearchParams(location.search);
+      const out = {};
+      ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k => {
+        if (p.get(k)) out[k] = p.get(k);
+      });
+      if (document.referrer) out.ref = document.referrer;
+      return out;
+    }
+
+    // Facility CTA — straight to Cal.com with UTM params
+    document.querySelectorAll('.yapper-facility-cta').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const params = utmParams();
+        const url = new URL(CAL_URL);
+        Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+        location.href = url.toString();
+      });
+    });
+
+    // Consumer CTAs — show email modal
+    const modal   = document.getElementById('signup-modal');
+    const form    = document.getElementById('suForm');
+    const emailEl = document.getElementById('suEmail');
+    const errEl   = document.getElementById('suErr');
+    const submitEl= document.getElementById('suSubmit');
+    let pendingHref = 'https://go.yapper.care';
+
+    document.querySelectorAll('.yapper-cta').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        pendingHref = el.href || 'https://go.yapper.care';
+        errEl.hidden = true;
+        emailEl.value = '';
+        modal.hidden = false;
+        if (window.lucide) lucide.createIcons();
+        emailEl.focus();
+      });
+    });
+
+    document.getElementById('suClose').addEventListener('click', () => { modal.hidden = true; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = emailEl.value.trim();
+      if (!email) return;
+
+      submitEl.disabled = true;
+      submitEl.textContent = 'One moment…';
+      errEl.hidden = true;
+
+      const params = utmParams();
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            type: 'consumer',
+            source: params.utm_source || (document.referrer ? new URL(document.referrer).hostname : 'direct'),
+            referrerUrl: document.referrer || null,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'error');
+      } catch (_) {
+        // Non-blocking — still redirect even if Attio call fails
+      }
+
+      const dest = new URL(pendingHref);
+      dest.searchParams.set('email', email);
+      Object.entries(params).forEach(([k,v]) => dest.searchParams.set(k, v));
+      location.href = dest.toString();
+    });
+  })();
 </script>
+
+<div id="signup-modal" class="su-overlay" hidden>
+  <div class="su-box">
+    <button class="su-close" id="suClose" aria-label="Close">&#215;</button>
+    <p class="su-headline">Enter your email to get started</p>
+    <form id="suForm" novalidate>
+      <input id="suEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <button type="submit" class="btn primary" id="suSubmit">Continue <i data-lucide="arrow-right" class="arrow"></i></button>
+    </form>
+    <p class="su-err" id="suErr" hidden></p>
+    <p class="su-fine">No spam &middot; Unsubscribe any time</p>
+  </div>
+</div>
 
 </body>
 </html>
