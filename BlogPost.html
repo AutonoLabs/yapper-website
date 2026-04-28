@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yapper Insight</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  body { margin: 0; background: var(--neutral-50); color: var(--neutral-900); font-family: var(--font-sans); }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 28px 20px 72px; }
+  .crumb { margin-bottom: 28px; }
+  .cat { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--primary-700); font-weight: 700; }
+  h1 { margin: 12px 0; font-size: clamp(34px, 5vw, 56px); line-height: 1.05; }
+  .meta { color: var(--neutral-600); margin-bottom: 26px; }
+  img { width: 100%; border-radius: 18px; border: 1px solid var(--border); margin-bottom: 26px; }
+  article p { font-size: 18px; line-height: 1.65; color: var(--neutral-800); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="crumb"><a href="Insights.html">← Back to Insights</a></div>
+    <div id="post"></div>
+  </div>
+  <script src="assets/js/admin-config.js"></script>
+  <script src="assets/js/ghost.js"></script>
+  <script src="assets/js/cms.js"></script>
+  <script>
+    (async function renderPost() {
+      const slug = new URLSearchParams(window.location.search).get("slug");
+      const el = document.getElementById("post");
+      let post = null;
+
+      try {
+        if (slug && window.YapperGhost?.hasConfig()) {
+          post = await window.YapperGhost.getPostBySlug(slug);
+        }
+      } catch (e) {
+        post = null;
+      }
+      if (!post && slug && window.YapperCMS) {
+        post = window.YapperCMS.getPostBySlug(slug);
+      }
+
+      if (!post) {
+        el.innerHTML = "<h1>Post not found</h1><p>Return to Insights to select another article.</p>";
+        return;
+      }
+
+      document.title = post.title + " — Yapper Insights";
+      const body = post.content && post.content.includes("<")
+        ? post.content
+        : String(post.content || "").split("\n").filter(Boolean).map((p) => `<p>${p}</p>`).join("");
+      el.innerHTML = `
+        <div class="cat">${post.category || "Insight"}</div>
+        <h1>${post.title}</h1>
+        <div class="meta">${post.author || "Yapper Team"} · ${post.date || ""} · ${post.readTime || ""}</div>
+        <img src="${post.image || ""}" alt="${post.title}" />
+        <article>${body}</article>
+      `;
+    })();
+  </script>
+</body>
+</html>

@@ -355,3 +355,30 @@ Marquis booth images are placeholder for the facilities section — swap with re
 - CMS for the Insights blog, or static MDX?
 - Any analytics / experimentation framework to wire CTAs into?
 - Real photography available, or stay on the licensed stock for v1?
+
+---
+
+## Headless Ghost Blog
+
+The blog now runs Ghost-first with local CMS fallback.
+
+- `Insights.html` fetches posts from Ghost Content API.
+- `BlogPost.html` fetches a single post by slug.
+- If Ghost is not configured or unavailable, pages fallback to `assets/js/cms.js`.
+
+### Ghost setup
+
+1. Create a Ghost Integration and get a Content API key.
+2. Set config in `assets/js/admin-config.js`:
+   - `window.YAPPER_GHOST.url`
+   - `window.YAPPER_GHOST.contentKey`
+   - optional `window.YAPPER_GHOST.adminUrl`
+3. Open `Admin.html` to verify status and launch Ghost Admin.
+
+### AI posting directly to Ghost
+
+Yes, AI agents can post directly using Ghost Admin API.
+
+- Keep Admin API keys server-side only.
+- Recommended flow: AI creates drafts, human publishes in Ghost Admin.
+- Use tag slugs for site filters: `research`, `field`, `family`, `facilities`, `product`.

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yapper Publishing</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  body { margin: 0; background: var(--neutral-50); color: var(--neutral-900); font-family: var(--font-sans); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 72px; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .card { background: var(--neutral-0); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  input { width: 100%; margin-top: 6px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font: inherit; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button, .btn { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 600; cursor: pointer; display: inline-block; text-decoration: none; }
+  .primary { background: var(--primary-700); color: white; }
+  .muted { background: var(--neutral-200); color: var(--neutral-800); }
+  .hint { color: var(--neutral-600); font-size: 14px; }
+  .mono { font-family: var(--font-mono); font-size: 13px; }
+  .ok { color: #0a6e50; }
+  .warn { color: #8b5a2b; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <h1>Yapper Publishing</h1>
+      <a href="Insights.html">Open blog</a>
+    </div>
+
+    <div class="card">
+      <h2>Headless Ghost Status</h2>
+      <p class="hint">This site now reads blog content from Ghost Content API and keeps local CMS only as fallback.</p>
+      <p id="statusLine" class="mono"></p>
+      <div class="row" style="margin-top: 12px;">
+        <a id="ghostAdminBtn" class="btn primary" href="#" target="_blank" rel="noopener">Open Ghost Admin</a>
+        <a id="ghostDocsBtn" class="btn muted" href="https://ghost.org/docs/content-api/" target="_blank" rel="noopener">Ghost API docs</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>AI Posting (Direct)</h2>
+      <p class="hint">Yes, agents can publish directly to Ghost via the Admin API. Keep the Admin API key server-side only.</p>
+      <p class="mono">Recommended flow: AI creates draft -> human reviews in Ghost -> publish.</p>
+    </div>
+
+    <div class="card">
+      <h2>Tag Mapping for This Site</h2>
+      <p class="hint">Use these Ghost tag slugs so cards route into existing filters:</p>
+      <ul>
+        <li><span class="mono">research</span></li>
+        <li><span class="mono">field</span></li>
+        <li><span class="mono">family</span></li>
+        <li><span class="mono">facilities</span></li>
+        <li><span class="mono">product</span></li>
+      </ul>
+    </div>
+  </div>
+  <script src="assets/js/admin-config.js"></script>
+  <script src="assets/js/ghost.js"></script>
+  <script>
+    const cfg = window.YAPPER_GHOST || {};
+    const base = (cfg.url || "").replace(/\/+$/, "");
+    const statusLine = document.getElementById("statusLine");
+    const adminBtn = document.getElementById("ghostAdminBtn");
+
+    if (window.YapperGhost?.hasConfig()) {
+      statusLine.innerHTML = `<span class="ok">Configured</span> · ${base}`;
+      adminBtn.href = cfg.adminUrl || `${base}/ghost/`;
+    } else {
+      statusLine.innerHTML = `<span class="warn">Not configured</span> · Set window.YAPPER_GHOST in assets/js/admin-config.js`;
+      adminBtn.href = "#";
+      adminBtn.classList.remove("primary");
+      adminBtn.classList.add("muted");
+    }
+  </script>
+</body>
+</html>
