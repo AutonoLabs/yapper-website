@@ -153,6 +153,86 @@
   }
 
   /* =========================================================
+     LIVE DEMO IFRAME MODAL
+     ========================================================= */
+  body.demo-modal-open { overflow: hidden; }
+  .live-demo-modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .live-demo-modal.open { display: flex; }
+  .live-demo-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(15,15,19,.58);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .live-demo-dialog {
+    position: relative; z-index: 1;
+    width: min(430px, calc(100vw - 28px)); height: min(720px, calc(100vh - 32px));
+    background:
+      linear-gradient(180deg, rgba(234,255,246,.96) 0%, rgba(255,255,255,.98) 42%, rgba(247,246,244,.98) 100%);
+    border-radius: 32px;
+    border: 1px solid rgba(255,255,255,.4);
+    box-shadow:
+      0 40px 90px -35px rgba(15,15,19,.58),
+      0 0 0 1px rgba(123,97,173,.08) inset;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .live-demo-dialog::before {
+    content: ""; position: absolute; inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--tertiary-200));
+    z-index: 1;
+  }
+  .live-demo-frame {
+    display: block; width: 100%; flex: 1; min-height: 0;
+    border: 0; background: transparent;
+  }
+  .live-demo-footer {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center;
+    padding: 12px 18px 16px;
+    background: rgba(255,255,255,.86);
+    border-top: 1px solid rgba(237,236,232,.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .live-demo-exit {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-width: 180px; height: 46px; padding: 0 22px;
+    border: 1px solid var(--primary-200);
+    border-radius: 999px;
+    background: white; color: var(--primary-700);
+    font-family: var(--font-sans); font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 26px -18px rgba(78,62,113,.48);
+    transition:
+      background var(--dur) var(--ease),
+      border-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+  .live-demo-exit:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-300);
+    transform: translateY(-1px);
+  }
+  .live-demo-exit svg { width: 17px; height: 17px; }
+  @media (max-width: 720px) {
+    .live-demo-modal { padding: 14px; }
+    .live-demo-dialog {
+      width: min(430px, 100%);
+      height: min(700px, calc(100vh - 28px));
+      border-radius: 26px;
+    }
+    .live-demo-footer { padding: 10px 14px 14px; }
+    .live-demo-exit { width: 100%; }
+  }
+
+  /* =========================================================
      HERO
      ========================================================= */
   /* Softened hero — less saturated, warmer, no "AI gradient" feel (UUPM Rule #57) */
@@ -1329,7 +1409,7 @@
         Yapper calls for a real conversation, then sends you a gentle note about how it went.
       </p>
       <div class="hero-cta">
-        <a class="btn primary xl yapper-cta" data-type="consumer" href="https://go.yapper.care">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
+        <a class="btn primary xl js-live-demo-trigger" data-type="consumer" href="https://yappercare.web.app/demo">Try a free call <i data-lucide="arrow-right" class="arrow"></i></a>
         <a class="btn outlined xl" href="#how-it-works"><i data-lucide="play-circle"></i> See how it works</a>
       </div>
       <div class="hero-meta">
@@ -2541,7 +2621,77 @@
       location.href = dest.toString();
     });
   })();
+
+  // ── Live Gemini demo iframe ───────────────────────────────────
+  (function () {
+    const fallbackUrl = 'https://yappercare.web.app/demo';
+
+    function initLiveDemo() {
+      const modal = document.getElementById('live-demo-modal');
+      const frame = document.getElementById('live-demo-frame');
+      const exitBtn = modal?.querySelector('.live-demo-exit');
+
+      if (!modal || !frame || !exitBtn) return;
+      if (window.lucide) lucide.createIcons();
+
+      function openDemo(url) {
+        frame.src = url || fallbackUrl;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('demo-modal-open');
+        exitBtn.focus();
+      }
+
+      function closeDemo() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('demo-modal-open');
+        frame.src = 'about:blank';
+      }
+
+      document.querySelectorAll('.js-live-demo-trigger').forEach(el => {
+        el.addEventListener('click', e => {
+          e.preventDefault();
+          openDemo(el.href);
+        });
+      });
+
+      modal.addEventListener('click', e => {
+        if (e.target.closest('[data-close-demo="true"]')) closeDemo();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeDemo();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLiveDemo);
+    } else {
+      initLiveDemo();
+    }
+  })();
 </script>
+
+<div id="live-demo-modal" class="live-demo-modal" role="dialog" aria-modal="true" aria-label="Yapper free call demo" aria-hidden="true">
+  <div class="live-demo-backdrop" data-close-demo="true"></div>
+  <div class="live-demo-dialog">
+    <iframe
+      id="live-demo-frame"
+      class="live-demo-frame"
+      title="Yapper free call demo"
+      src="about:blank"
+      allow="microphone; autoplay"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+    <div class="live-demo-footer">
+      <button class="live-demo-exit" type="button" data-close-demo="true">
+        <i data-lucide="log-out"></i>
+        Exit Demo
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="signup-modal" class="su-overlay" hidden>
   <div class="su-box">
